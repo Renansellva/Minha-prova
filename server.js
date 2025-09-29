@@ -466,6 +466,103 @@ app.get('/provas/:id', requireAuth, async (req, res) => {
   }
 });
 
+// Editar prova
+app.get('/provas/:id/editar', requireAuth, async (req, res) => {
+  try {
+    const provaId = req.params.id;
+    const professorId = req.session.professorId;
+    
+    // Buscar prova e verificar se pertence ao professor
+    const prova = await db.getProvaById(provaId, professorId);
+    if (!prova) {
+      return res.status(404).send('Prova não encontrada');
+    }
+    
+    // Buscar questões da prova
+    const questoesProva = await db.getQuestoesProva(provaId);
+    
+    // Buscar todas as questões do professor para seleção
+    const todasQuestoes = await db.getQuestoes(professorId);
+    
+    res.render('provas/editar', {
+      professor: { nome: req.session.professorNome },
+      prova,
+      questoesProva,
+      todasQuestoes
+    });
+  } catch (error) {
+    console.error('Erro ao carregar prova para edição:', error);
+    res.status(500).send('Erro interno do servidor');
+  }
+});
+
+// Atualizar prova
+app.post('/provas/:id/editar', requireAuth, async (req, res) => {
+  try {
+    const provaId = req.params.id;
+    const professorId = req.session.professorId;
+    const { titulo, disciplina, descricao, tempoLimite, turma_nome, questoesIds } = req.body;
+    
+    // Verificar se a prova pertence ao professor
+    const prova = await db.getProvaById(provaId, professorId);
+    if (!prova) {
+      return res.status(404).json({
+        success: false,
+        message: 'Prova não encontrada'
+      });
+    }
+    
+    // Atualizar prova
+    await db.updateProva(provaId, {
+      titulo,
+      disciplina: disciplina || 'Não especificada',
+      descricao,
+      tempoLimite: parseInt(tempoLimite),
+      turma_nome: turma_nome || 'Turma não especificada'
+    });
+    
+    // Remover questões antigas
+    await db.removeQuestoesProva(provaId);
+    
+    // Adicionar novas questões
+    if (questoesIds && questoesIds.length > 0) {
+      for (let i = 0; i < questoesIds.length; i++) {
+        await db.addQuestaoProva(provaId, questoesIds[i], i + 1);
+      }
+    }
+    
+    res.json({ success: true, message: 'Prova atualizada com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao atualizar prova:', error);
+    res.json({ success: false, message: 'Erro ao atualizar prova' });
+  }
+});
+
+// Excluir prova
+app.delete('/provas/:id', requireAuth, async (req, res) => {
+  try {
+    const provaId = req.params.id;
+    const professorId = req.session.professorId;
+    
+    // Verificar se a prova pertence ao professor
+    const prova = await db.getProvaById(provaId, professorId);
+    if (!prova) {
+      return res.status(404).json({
+        success: false,
+        message: 'Prova não encontrada'
+      });
+    }
+    
+    // Excluir prova (cascade delete das questões)
+    await db.deleteProva(provaId);
+    
+    res.json({ success: true, message: 'Prova excluída com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao excluir prova:', error);
+    res.json({ success: false, message: 'Erro ao excluir prova' });
+  }
+});
+
 // Gerar prova para aluno
 app.get('/provas/:provaId/aluno/:alunoId', requireAuth, async (req, res) => {
   try {

@@ -295,8 +295,25 @@
     <script>
         function excluirProva(provaId) {
             if (confirm('Tem certeza que deseja excluir esta prova? Esta ação não pode ser desfeita.')) {
-                // Implementar exclusão
-                alert('Funcionalidade de exclusão será implementada em breve!');
+                fetch(`/provas/${provaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Prova excluída com sucesso!');
+                        window.location.reload();
+                    } else {
+                        alert('Erro ao excluir prova: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir prova. Tente novamente.');
+                });
             }
         }
 

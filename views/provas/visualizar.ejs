@@ -432,7 +432,6 @@
                         {
                             id: <%= questao.id %>,
                             numero: <%= index + 1 %>,
-                            area: '<%= questao.area %>',
                             enunciado: '<%= questao.enunciado.replace(/'/g, "\\'") %>'
                         }<%= index < questoes.length - 1 ? ',' : '' %>
                         <% }); %>

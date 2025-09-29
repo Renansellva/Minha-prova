@@ -128,6 +128,17 @@ class Database {
         console.log('✅ Migração: Coluna turma_nome adicionada ou já existe');
       }
     });
+
+    // Migração: Adicionar coluna updated_at se não existir
+    this.db.run(`
+      ALTER TABLE provas ADD COLUMN updated_at DATETIME
+    `, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.error('Erro na migração updated_at:', err);
+      } else {
+        console.log('✅ Migração: Coluna updated_at adicionada ou já existe');
+      }
+    });
   }
 
   async insertInitialData() {
@@ -460,6 +471,51 @@ class Database {
           else resolve(this.changes);
         }
       );
+    });
+  }
+
+  // Métodos para edição e exclusão de provas
+  updateProva(provaId, dados) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE provas SET titulo = ?, disciplina = ?, descricao = ?, tempo_limite = ?, turma_nome = ?, updated_at = datetime("now") WHERE id = ?',
+        [dados.titulo, dados.disciplina, dados.descricao, dados.tempoLimite, dados.turma_nome, provaId],
+        function(err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
+
+  removeQuestoesProva(provaId) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'DELETE FROM prova_questoes WHERE prova_id = ?',
+        [provaId],
+        function(err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
+
+  deleteProva(provaId) {
+    return new Promise((resolve, reject) => {
+      // Primeiro remove as questões da prova
+      this.db.run('DELETE FROM prova_questoes WHERE prova_id = ?', [provaId], (err) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        
+        // Depois remove a prova
+        this.db.run('DELETE FROM provas WHERE id = ?', [provaId], function(err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        });
+      });
     });
   }
 
