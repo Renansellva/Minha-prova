@@ -139,6 +139,28 @@ class Database {
         console.log('✅ Migração: Coluna updated_at adicionada ou já existe');
       }
     });
+
+    // Migração: Adicionar coluna imagem se não existir
+    this.db.run(`
+      ALTER TABLE provas ADD COLUMN imagem TEXT
+    `, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.error('Erro na migração imagem:', err);
+      } else {
+        console.log('✅ Migração: Coluna imagem adicionada ou já existe');
+      }
+    });
+
+    // Migração: Adicionar coluna texto_personalizado se não existir
+    this.db.run(`
+      ALTER TABLE provas ADD COLUMN texto_personalizado TEXT
+    `, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.error('Erro na migração texto_personalizado:', err);
+      } else {
+        console.log('✅ Migração: Coluna texto_personalizado adicionada ou já existe');
+      }
+    });
   }
 
   async insertInitialData() {
@@ -298,8 +320,8 @@ class Database {
   addProva(prova) {
     return new Promise((resolve, reject) => {
       this.db.run(
-        'INSERT INTO provas (titulo, disciplina, descricao, tempo_limite, turma_nome, professor_id, tipo) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [prova.titulo, prova.disciplina, prova.descricao, prova.tempoLimite, prova.turma_nome, prova.professorId, prova.tipo],
+        'INSERT INTO provas (titulo, disciplina, descricao, tempo_limite, turma_nome, professor_id, tipo, imagem, texto_personalizado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [prova.titulo, prova.disciplina, prova.descricao, prova.tempoLimite, prova.turma_nome, prova.professorId, prova.tipo, prova.imagem, prova.textoPersonalizado],
         function(err) {
           if (err) reject(err);
           else resolve(this.lastID);
@@ -423,6 +445,19 @@ class Database {
     });
   }
 
+  deleteProfessor(professorId) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'DELETE FROM professores WHERE id = ?',
+        [professorId],
+        function(err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
+
   getAllProfessores() {
     return new Promise((resolve, reject) => {
       this.db.all(
@@ -478,8 +513,8 @@ class Database {
   updateProva(provaId, dados) {
     return new Promise((resolve, reject) => {
       this.db.run(
-        'UPDATE provas SET titulo = ?, disciplina = ?, descricao = ?, tempo_limite = ?, turma_nome = ?, updated_at = datetime("now") WHERE id = ?',
-        [dados.titulo, dados.disciplina, dados.descricao, dados.tempoLimite, dados.turma_nome, provaId],
+        'UPDATE provas SET titulo = ?, disciplina = ?, descricao = ?, tempo_limite = ?, turma_nome = ?, imagem = ?, texto_personalizado = ?, updated_at = datetime("now") WHERE id = ?',
+        [dados.titulo, dados.disciplina, dados.descricao, dados.tempoLimite, dados.turma_nome, dados.imagem, dados.textoPersonalizado, provaId],
         function(err) {
           if (err) reject(err);
           else resolve(this.changes);

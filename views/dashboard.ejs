@@ -320,10 +320,12 @@
                     <div class="action-icon">📚</div>
                     <div class="action-title">Minhas Provas</div>
                 </a>
-                <a href="#" class="action-btn" onclick="mostrarCriarUsuario()" id="criar-usuario-btn" style="display: none;">
+                <% if (professor.id === 1) { %>
+                <a href="/usuarios" class="action-btn">
                     <div class="action-icon">👥</div>
-                    <div class="action-title">Novo Usuário</div>
+                    <div class="action-title">Gerenciar Usuários</div>
                 </a>
+                <% } %>
                 <a href="/provas" class="action-btn">
                     <div class="action-icon">🖨️</div>
                     <div class="action-title">Imprimir Provas</div>
@@ -357,33 +359,6 @@
         </div>
     </div>
 
-    <!-- Modal para criar novo usuário -->
-    <div id="modal-criar-usuario" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>👥 Criar Novo Usuário</h3>
-                <span class="close" onclick="fecharModalUsuario()">&times;</span>
-            </div>
-            <form id="form-criar-usuario">
-                <div class="form-group">
-                    <label for="nome-usuario">Nome:</label>
-                    <input type="text" id="nome-usuario" name="nome" required placeholder="Ex: João Silva">
-                </div>
-                <div class="form-group">
-                    <label for="email-usuario">E-mail:</label>
-                    <input type="email" id="email-usuario" name="email" required placeholder="Ex: joao@escola.com">
-                </div>
-                <div class="form-group">
-                    <label for="senha-usuario">Senha:</label>
-                    <input type="password" id="senha-usuario" name="senha" required placeholder="Mínimo 6 caracteres">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="fecharModalUsuario()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Criar Usuário</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <style>
         .modal {
@@ -470,65 +445,7 @@
 
     <script>
         // Mostrar botão de criar usuário apenas para admin
-        document.addEventListener('DOMContentLoaded', function() {
-            const professorEmail = '<%= professor.email %>';
-            if (professorEmail === 'admin@escola.com') {
-                document.getElementById('criar-usuario-btn').style.display = 'block';
-            }
-        });
 
-        function mostrarCriarUsuario() {
-            document.getElementById('modal-criar-usuario').style.display = 'block';
-        }
-
-        function fecharModalUsuario() {
-            document.getElementById('modal-criar-usuario').style.display = 'none';
-            document.getElementById('form-criar-usuario').reset();
-        }
-
-        // Enviar formulário de criar usuário
-        document.getElementById('form-criar-usuario').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const nome = document.getElementById('nome-usuario').value;
-            const email = document.getElementById('email-usuario').value;
-            const senha = document.getElementById('senha-usuario').value;
-            
-            if (senha.length < 6) {
-                alert('A senha deve ter pelo menos 6 caracteres.');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/novo-usuario', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ nome, email, senha })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Usuário criado com sucesso!');
-                    fecharModalUsuario();
-                } else {
-                    alert('Erro: ' + result.message);
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao criar usuário. Tente novamente.');
-            }
-        });
-
-        // Fechar modal ao clicar fora dele
-        window.onclick = function(event) {
-            const modal = document.getElementById('modal-criar-usuario');
-            if (event.target === modal) {
-                fecharModalUsuario();
-            }
-        }
     </script>
 </body>
 </html>

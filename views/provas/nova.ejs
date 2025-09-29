@@ -322,10 +322,26 @@
                         <label for="tempoLimite">Tempo Limite (minutos):</label>
                         <input type="number" id="tempoLimite" name="tempoLimite" min="1" placeholder="Ex: 90">
                     </div>
-                    <div class="form-group">
-                        <label for="descricao">Descrição (opcional):</label>
-                        <input type="text" id="descricao" name="descricao" placeholder="Ex: Prova sobre equações do 2º grau">
+                <div class="form-group">
+                    <label for="descricao">Descrição (opcional):</label>
+                    <input type="text" id="descricao" name="descricao" placeholder="Ex: Prova sobre equações do 2º grau">
+                </div>
+
+                <div class="form-group">
+                    <label for="imagem">Imagem da Prova (opcional):</label>
+                    <input type="file" id="imagem" name="imagem" accept="image/*" onchange="previewImage(this)">
+                    <small style="color: #666; font-size: 0.9em;">Formatos aceitos: JPG, PNG, GIF (máx. 5MB)</small>
+                    <div id="image-preview" style="margin-top: 10px; display: none;">
+                        <img id="preview-img" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #e1e5e9;">
+                        <button type="button" onclick="removeImage()" style="margin-left: 10px; background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Remover</button>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="textoPersonalizado">Texto Personalizado (opcional):</label>
+                    <textarea id="textoPersonalizado" name="textoPersonalizado" rows="4" placeholder="Digite aqui qualquer texto adicional que deseja incluir na prova (instruções, fórmulas, etc.)"></textarea>
+                    <small style="color: #666; font-size: 0.9em;">Este texto aparecerá no cabeçalho da prova</small>
+                </div>
                 </div>
 
                 <div class="questoes-section">
@@ -432,6 +448,39 @@
             updateSelectedQuestoesDisplay();
         }
 
+        // Funções para preview de imagem
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Validar tamanho (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('A imagem deve ter no máximo 5MB.');
+                    input.value = '';
+                    return;
+                }
+                
+                // Validar tipo
+                if (!file.type.startsWith('image/')) {
+                    alert('Por favor, selecione apenas arquivos de imagem.');
+                    input.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('image-preview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            document.getElementById('imagem').value = '';
+            document.getElementById('image-preview').style.display = 'none';
+        }
+
         // Enviar formulário
         document.getElementById('nova-prova-form').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -442,23 +491,52 @@
             }
             
             const formData = new FormData(this);
+            
+            // Criar objeto de dados
             const data = {
                 titulo: formData.get('titulo'),
                 disciplina: formData.get('disciplina'),
                 descricao: formData.get('descricao'),
                 tempoLimite: formData.get('tempoLimite'),
                 turma_nome: formData.get('turma_nome'),
+                textoPersonalizado: formData.get('textoPersonalizado'),
                 questoesIds: selectedQuestoes
             };
             
+            // Adicionar imagem se existir
+            const imagem = formData.get('imagem');
+            if (imagem && imagem.size > 0) {
+                data.imagem = imagem;
+            }
+            
             try {
-                const response = await fetch('/api/provas', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
+                // Se tem imagem, usar FormData, senão JSON
+                let response;
+                if (data.imagem) {
+                    const formDataToSend = new FormData();
+                    Object.keys(data).forEach(key => {
+                        if (key === 'questoesIds') {
+                            formDataToSend.append(key, JSON.stringify(data[key]));
+                        } else if (key === 'imagem') {
+                            formDataToSend.append(key, data[key]);
+                        } else {
+                            formDataToSend.append(key, data[key]);
+                        }
+                    });
+                    
+                    response = await fetch('/api/provas', {
+                        method: 'POST',
+                        body: formDataToSend
+                    });
+                } else {
+                    response = await fetch('/api/provas', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
                 
                 const result = await response.json();
                 

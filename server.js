@@ -104,6 +104,15 @@ app.get('/login', (req, res) => {
   }
 });
 
+// Rota de registro
+app.get('/registro', (req, res) => {
+  if (req.session.professorId) {
+    res.redirect('/dashboard');
+  } else {
+    res.render('registro');
+  }
+});
+
 // API de login
 app.post('/api/login', async (req, res) => {
   try {
@@ -123,10 +132,99 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// API de registro
+app.post('/api/registro', async (req, res) => {
+  try {
+    const { nome, email, senha } = req.body;
+    
+    // Verificar se o email já existe
+    const professorExistente = await db.getProfessorByEmail(email);
+    if (professorExistente) {
+      return res.json({ success: false, message: 'Este e-mail já está em uso.' });
+    }
+    
+    // Hash da senha
+    const senhaHash = bcrypt.hashSync(senha, 10);
+    
+    // Criar novo professor
+    const professorId = await db.addProfessor(nome, email, senhaHash);
+    
+    if (professorId) {
+      res.json({ success: true, message: 'Conta criada com sucesso!' });
+    } else {
+      res.json({ success: false, message: 'Erro ao criar conta.' });
+    }
+  } catch (error) {
+    console.error('Erro no registro:', error);
+    res.json({ success: false, message: 'Erro interno do servidor.' });
+  }
+});
+
 // Rota de logout
 app.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/login');
+});
+
+// Middleware para verificar se é administrador
+const requireAdmin = (req, res, next) => {
+  if (req.session.professorId === 1) { // ID 1 é sempre o administrador
+    next();
+  } else {
+    res.status(403).json({ success: false, message: 'Acesso negado. Apenas administradores podem acessar esta funcionalidade.' });
+  }
+};
+
+// Rota para listar usuários (apenas admin)
+app.get('/usuarios', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const usuarios = await db.getAllProfessores();
+    res.render('usuarios/lista', {
+      professor: { nome: req.session.professorNome },
+      usuarios
+    });
+  } catch (error) {
+    console.error('Erro ao carregar usuários:', error);
+    res.status(500).send('Erro interno do servidor');
+  }
+});
+
+// API para excluir usuário (apenas admin)
+app.delete('/api/usuarios/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const usuarioId = req.params.id;
+    
+    // Não permitir excluir o administrador (ID 1)
+    if (usuarioId == 1) {
+      return res.json({ success: false, message: 'Não é possível excluir o administrador do sistema.' });
+    }
+    
+    // Verificar se o usuário existe
+    const usuario = await db.getProfessorById(usuarioId);
+    if (!usuario) {
+      return res.json({ success: false, message: 'Usuário não encontrado.' });
+    }
+    
+    // Excluir todas as provas do usuário primeiro
+    const provas = await db.getProvas(usuarioId);
+    for (const prova of provas) {
+      await db.deleteProva(prova.id);
+    }
+    
+    // Excluir todas as questões do usuário
+    const questoes = await db.getQuestoes(usuarioId);
+    for (const questao of questoes) {
+      await db.deleteQuestao(questao.id);
+    }
+    
+    // Excluir o usuário
+    await db.deleteProfessor(usuarioId);
+    
+    res.json({ success: true, message: 'Usuário excluído com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao excluir usuário:', error);
+    res.json({ success: false, message: 'Erro ao excluir usuário' });
+  }
 });
 
 // ==================== ROTAS PROTEGIDAS ====================
@@ -208,10 +306,53 @@ app.get('/provas/nova', requireAuth, async (req, res) => {
 });
 
 // Criar nova prova
-app.post('/api/provas', requireAuth, async (req, res) => {
+// Configuração do Multer para upload de imagens de provas
+const provaImageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = 'public/uploads/provas/';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = uuidv4() + '_' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
+const provaImageUpload = multer({
+  storage: provaImageStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos de imagem são permitidos!'), false);
+    }
+  }
+});
+
+app.post('/api/provas', requireAuth, provaImageUpload.single('imagem'), async (req, res) => {
   try {
-    const { titulo, disciplina, descricao, tempoLimite, turma_nome, questoesIds } = req.body;
+    const { titulo, disciplina, descricao, tempoLimite, turma_nome, textoPersonalizado, questoesIds } = req.body;
     const professorId = req.session.professorId;
+    
+    // Processar imagem se foi enviada
+    let imagemPath = null;
+    if (req.file) {
+      imagemPath = `/uploads/provas/${req.file.filename}`;
+    }
+    
+    // Processar questões se vieram como string JSON
+    let questoesArray = [];
+    if (questoesIds) {
+      if (typeof questoesIds === 'string') {
+        questoesArray = JSON.parse(questoesIds);
+      } else {
+        questoesArray = questoesIds;
+      }
+    }
     
     // Criar a prova com nome da turma como texto
     const provaId = await db.addProva({
@@ -220,14 +361,16 @@ app.post('/api/provas', requireAuth, async (req, res) => {
       descricao,
       tempoLimite: parseInt(tempoLimite),
       turma_nome: turma_nome || 'Turma não especificada',
+      textoPersonalizado: textoPersonalizado || null,
+      imagem: imagemPath,
       professorId,
       tipo: 'manual'
     });
     
     // Adicionar questões à prova
-    if (questoesIds && questoesIds.length > 0) {
-      for (let i = 0; i < questoesIds.length; i++) {
-        await db.addQuestaoProva(provaId, questoesIds[i], i + 1);
+    if (questoesArray && questoesArray.length > 0) {
+      for (let i = 0; i < questoesArray.length; i++) {
+        await db.addQuestaoProva(provaId, questoesArray[i], i + 1);
       }
     }
     

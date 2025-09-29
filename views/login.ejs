@@ -177,28 +177,13 @@
         </form>
 
         <div class="demo-info">
-            <h3>🔑 Usuários Disponíveis</h3>
-            <div class="user-options">
-                <div class="user-option" onclick="preencherLogin('admin@escola.com', 'admin123')">
-                    <strong>👨‍💼 Administrador</strong><br>
-                    admin@escola.com / admin123
-                </div>
-                <div class="user-option" onclick="preencherLogin('maria@escola.com', 'maria123')">
-                    <strong>👩‍🏫 Maria Silva</strong><br>
-                    maria@escola.com / maria123
-                </div>
-                <div class="user-option" onclick="preencherLogin('joao@escola.com', 'joao123')">
-                    <strong>👨‍🏫 João Santos</strong><br>
-                    joao@escola.com / joao123
-                </div>
-                <div class="user-option" onclick="preencherLogin('ana@escola.com', 'ana123')">
-                    <strong>👩‍🏫 Ana Costa</strong><br>
-                    ana@escola.com / ana123
-                </div>
-            </div>
-            <p style="font-size: 0.8em; color: #999; margin-top: 15px;">
-                Clique em um usuário para preencher automaticamente
+            <h3>🚀 Primeira vez aqui?</h3>
+            <p style="color: #666; margin: 10px 0;">
+                Crie sua conta gratuitamente e comece a usar o sistema de provas.
             </p>
+            <a href="/registro" style="display: inline-block; background: #28a745; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 10px;">
+                📝 Criar Conta Grátis
+            </a>
         </div>
     </div>
 
@@ -244,15 +229,10 @@
             }
         });
 
-        function preencherLogin(email, senha) {
-            document.getElementById('email').value = email;
-            document.getElementById('senha').value = senha;
-        }
-
-        // Preencher automaticamente os dados de admin por padrão
+        // Limpar campos ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('email').value = 'admin@escola.com';
-            document.getElementById('senha').value = 'admin123';
+            document.getElementById('email').value = '';
+            document.getElementById('senha').value = '';
         });
     </script>
 </body>
