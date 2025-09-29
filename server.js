@@ -12,6 +12,7 @@ const moment = require('moment');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 const db = new Database();
 
 // Configuração do EJS
@@ -816,7 +817,7 @@ async function startServer() {
     // O banco já é inicializado automaticamente no construtor
     console.log('💾 Banco de dados inicializado com sucesso!');
     
-app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
       if (process.env.NODE_ENV !== 'production') {
   console.log(`📚 Acesse: http://localhost:${PORT}`);
@@ -829,7 +830,13 @@ app.listen(PORT, () => {
   }
 }
 
-startServer();
+// Para Vercel, exportar o app
+module.exports = app;
+
+// Iniciar servidor apenas se não estiver na Vercel
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
+  startServer();
+}
 
 // Graceful shutdown
 process.on('SIGINT', () => {
