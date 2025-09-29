@@ -88,6 +88,16 @@ async function gerarQRCode(data) {
 // ==================== ROTAS PÚBLICAS ====================
 
 // Rota principal - redireciona para login ou dashboard
+// Rota de teste para Vercel
+app.get('/test', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Servidor funcionando!',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 app.get('/', (req, res) => {
   if (req.session.professorId) {
     res.redirect('/dashboard');

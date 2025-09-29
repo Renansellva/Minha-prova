@@ -4,19 +4,25 @@ const bcrypt = require('bcryptjs');
 
 class Database {
   constructor() {
-    this.db = new sqlite3.Database(path.join(__dirname, 'prova_system.db'));
+    // Para Vercel, usar banco em memória se não conseguir criar arquivo
+    const dbPath = process.env.VERCEL ? ':memory:' : path.join(__dirname, 'prova_system.db');
+    this.db = new sqlite3.Database(dbPath);
     this.init();
   }
 
   init() {
-    // Criar tabelas
-    this.createTables();
-    
-    // Executar migrações
-    this.runMigrations();
-    
-    // Inserir dados iniciais
-    this.insertInitialData();
+    try {
+      // Criar tabelas
+      this.createTables();
+      
+      // Executar migrações
+      this.runMigrations();
+      
+      // Inserir dados iniciais
+      this.insertInitialData();
+    } catch (error) {
+      console.error('Erro ao inicializar banco de dados:', error);
+    }
   }
 
   createTables() {
