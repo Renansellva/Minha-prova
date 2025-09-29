@@ -8,12 +8,14 @@ const fs = require('fs').promises;
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const Database = require('./database');
+const MemoryDatabase = require('./database-memory');
 const moment = require('moment');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const db = new Database();
+// Usar banco em memória na Vercel, SQLite localmente
+const db = process.env.VERCEL ? new MemoryDatabase() : new Database();
 
 // Configuração do EJS
 app.set('view engine', 'ejs');
