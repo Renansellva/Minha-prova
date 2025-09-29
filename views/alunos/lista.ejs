@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alunos - Minha Prova</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 2em;
+            color: #333;
+            margin: 0;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-item label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .filter-item select,
+        .filter-item input {
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .filter-item select:focus,
+        .filter-item input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-filter {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+        }
+
+        .alunos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .aluno-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            border-left: 4px solid #667eea;
+        }
+
+        .aluno-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .aluno-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .aluno-nome {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .aluno-turma {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .aluno-info {
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stats-section h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .stat-number {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .aluno-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .stats-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item-bar {
+            text-align: center;
+        }
+
+        .stat-number-bar {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label-bar {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">📚 Minha Prova</div>
+            <div>
+                <span>👋 Olá, <%= professor.nome %></span>
+                <a href="/logout" style="color: #dc3545; text-decoration: none; margin-left: 15px;">Sair</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">👥 Meus Alunos</h1>
+            <a href="/alunos/novo" class="btn-primary">➕ Novo Aluno</a>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item-bar">
+                <div class="stat-number-bar"><%= alunos.length %></div>
+                <div class="stat-label-bar">Total de Alunos</div>
+            </div>
+            <div class="stat-item-bar">
+                <div class="stat-number-bar"><%= [...new Set(alunos.map(a => a.turma_nome))].length %></div>
+                <div class="stat-label-bar">Turmas Diferentes</div>
+            </div>
+            <div class="stat-item-bar">
+                <div class="stat-number-bar"><%= alunos.filter(a => a.email).length %></div>
+                <div class="stat-label-bar">Com E-mail</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label for="turma-filter">Filtrar por Turma:</label>
+                    <select id="turma-filter">
+                        <option value="">Todas as turmas</option>
+                        <% [...new Set(alunos.map(a => a.turma_nome))].forEach(turma => { %>
+                            <option value="<%= turma %>"><%= turma %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="search">Buscar:</label>
+                    <input type="text" id="search" placeholder="Buscar por nome...">
+                </div>
+                <div class="filter-item">
+                    <button class="btn-filter" onclick="aplicarFiltros()">🔍 Filtrar</button>
+                </div>
+            </div>
+        </div>
+
+        <% if (alunos && alunos.length > 0) { %>
+            <div class="alunos-grid">
+                <% alunos.forEach(aluno => { %>
+                    <div class="aluno-card" data-turma="<%= aluno.turma_nome %>">
+                        <div class="aluno-header">
+                            <div class="aluno-nome"><%= aluno.nome %></div>
+                            <div class="aluno-turma"><%= aluno.turma_nome %></div>
+                        </div>
+                        
+                        <div class="aluno-info">
+                            <div class="info-item">
+                                <span class="info-label">📧 E-mail:</span>
+                                <span class="info-value"><%= aluno.email || 'Não informado' %></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">🏫 Turma:</span>
+                                <span class="info-value"><%= aluno.turma_nome %></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">📅 Cadastrado em:</span>
+                                <span class="info-value"><%= new Date(aluno.created_at).toLocaleDateString('pt-BR') %></span>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-section">
+                            <h4>📊 Estatísticas</h4>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-number">0</div>
+                                    <div class="stat-label">Provas Realizadas</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">0</div>
+                                    <div class="stat-label">Média Geral</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="aluno-actions">
+                            <button class="btn btn-info" onclick="visualizarAluno(<%= aluno.id %>)">👁️ Visualizar</button>
+                            <button class="btn btn-warning" onclick="editarAluno(<%= aluno.id %>)">✏️ Editar</button>
+                            <button class="btn btn-success" onclick="gerarProvaAluno(<%= aluno.id %>)">🎲 Gerar Prova</button>
+                            <button class="btn btn-danger" onclick="excluirAluno(<%= aluno.id %>)">🗑️ Excluir</button>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-state-icon">👥</div>
+                <h3>Nenhum aluno encontrado</h3>
+                <p>Cadastre seus primeiros alunos para começar a usar o sistema.</p>
+                <a href="/alunos/novo" class="btn-primary">Cadastrar Primeiro Aluno</a>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        function aplicarFiltros() {
+            const turma = document.getElementById('turma-filter').value;
+            const search = document.getElementById('search').value.toLowerCase();
+            
+            // Construir URL com filtros
+            let url = '/alunos?';
+            if (turma) url += `turma=${encodeURIComponent(turma)}&`;
+            if (search) url += `search=${encodeURIComponent(search)}&`;
+            
+            // Remover último & se existir
+            url = url.replace(/&$/, '');
+            
+            window.location.href = url;
+        }
+
+        function visualizarAluno(alunoId) {
+            alert('Funcionalidade de visualização será implementada em breve!');
+        }
+
+        function editarAluno(alunoId) {
+            alert('Funcionalidade de edição será implementada em breve!');
+        }
+
+        function gerarProvaAluno(alunoId) {
+            alert('Funcionalidade de geração de prova será implementada em breve!');
+        }
+
+        function excluirAluno(alunoId) {
+            if (confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.')) {
+                // Implementar exclusão
+                alert('Funcionalidade de exclusão será implementada em breve!');
+            }
+        }
+
+        // Filtro em tempo real por busca
+        document.getElementById('search').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const alunos = document.querySelectorAll('.aluno-card');
+            
+            alunos.forEach(aluno => {
+                const nome = aluno.querySelector('.aluno-nome').textContent.toLowerCase();
+                if (nome.includes(searchTerm)) {
+                    aluno.style.display = 'block';
+                } else {
+                    aluno.style.display = 'none';
+                }
+            });
+        });
+
+        // Filtro por turma em tempo real
+        document.getElementById('turma-filter').addEventListener('change', function() {
+            const turmaSelecionada = this.value;
+            const alunos = document.querySelectorAll('.aluno-card');
+            
+            alunos.forEach(aluno => {
+                const turma = aluno.getAttribute('data-turma');
+                if (!turmaSelecionada || turma === turmaSelecionada) {
+                    aluno.style.display = 'block';
+                } else {
+                    aluno.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

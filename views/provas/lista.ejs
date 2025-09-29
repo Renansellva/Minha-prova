@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provas - Minha Prova</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .breadcrumb-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb-separator {
+            margin: 0 10px;
+            color: #666;
+        }
+
+        .breadcrumb-current {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-size: 2em;
+            color: #333;
+            margin: 0 0 20px 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .provas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .prova-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .prova-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .prova-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .prova-title {
+            font-size: 1.3em;
+            color: #333;
+            margin: 0;
+            flex: 1;
+        }
+
+        .prova-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .prova-status.ativa {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .prova-status.inativa {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .prova-info {
+            margin-bottom: 20px;
+        }
+
+        .prova-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .prova-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">📚 Minha Prova</div>
+            <div class="user-info">
+                <span>👋 Olá, <%= professor.nome %></span>
+                <a href="/logout" style="color: #dc3545; text-decoration: none;">Sair</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="breadcrumb">
+                <a href="/dashboard" class="breadcrumb-link">🏠 Dashboard</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current">📝 Minhas Provas</span>
+            </div>
+            <h1 class="page-title">📝 Minhas Provas</h1>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn btn-secondary">🏠 Voltar ao Dashboard</a>
+                <a href="/provas/nova" class="btn-primary">➕ Nova Prova</a>
+            </div>
+        </div>
+
+        <% if (provas && provas.length > 0) { %>
+            <div class="provas-grid">
+                <% provas.forEach(prova => { %>
+                    <div class="prova-card">
+                        <div class="prova-header">
+                            <h3 class="prova-title"><%= prova.titulo %></h3>
+                            <span class="prova-status <%= prova.status %>"><%= prova.status.charAt(0).toUpperCase() + prova.status.slice(1) %></span>
+                        </div>
+                        
+                        <div class="prova-info">
+                            <p><strong>📚 Disciplina:</strong> <%= prova.disciplina %></p>
+                            <p><strong>🏫 Turma:</strong> <%= prova.turma_nome %></p>
+                            <p><strong>❓ Questões:</strong> <%= prova.total_questoes %></p>
+                            <% if (prova.tempo_limite) { %>
+                                <p><strong>⏱️ Tempo:</strong> <%= prova.tempo_limite %> minutos</p>
+                            <% } %>
+                            <p><strong>📅 Criada em:</strong> <%= new Date(prova.created_at).toLocaleDateString('pt-BR') %></p>
+                        </div>
+                        
+                        <div class="prova-actions">
+                            <a href="/provas/<%= prova.id %>" class="btn btn-info">👁️ Visualizar</a>
+                            <button class="btn btn-primary" onclick="imprimirProva(<%= prova.id %>)">🖨️ Imprimir</button>
+                            <a href="/provas/<%= prova.id %>/editar" class="btn btn-warning">✏️ Editar</a>
+                            <a href="/provas/<%= prova.id %>/gerar" class="btn btn-success">🎲 Gerar para Alunos</a>
+                            <button class="btn btn-danger" onclick="excluirProva(<%= prova.id %>)">🗑️ Excluir</button>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <h3>Nenhuma prova criada ainda</h3>
+                <p>Crie sua primeira prova para começar a usar o sistema.</p>
+                <a href="/provas/nova" class="btn-primary">Criar Primeira Prova</a>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        function excluirProva(provaId) {
+            if (confirm('Tem certeza que deseja excluir esta prova? Esta ação não pode ser desfeita.')) {
+                // Implementar exclusão
+                alert('Funcionalidade de exclusão será implementada em breve!');
+            }
+        }
+
+        function imprimirProva(provaId) {
+            // Abrir a prova em nova janela para impressão
+            const novaJanela = window.open(`/provas/${provaId}`, '_blank');
+            
+            novaJanela.onload = function() {
+                // Aguardar um pouco para carregar completamente
+                setTimeout(() => {
+                    novaJanela.focus();
+                    // Chamar a função de impressão da página
+                    novaJanela.imprimirProva();
+                }, 1000);
+            };
+        }
+    </script>
+</body>
+</html>

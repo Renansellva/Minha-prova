@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Professor - Sistema de Provas</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .professor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-bottom: none;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0 8px 8px 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .opcoes-container {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .opcao-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .opcao-item input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .opcao-item input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+        }
+
+        .opcao-item input[type="radio"] {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .btn-add-opcao {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-add-opcao:hover {
+            background: #218838;
+        }
+
+        .btn-remove-opcao {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-remove-opcao:hover {
+            background: #c82333;
+        }
+
+        .questoes-criadas {
+            margin-top: 30px;
+        }
+
+        .questao-item {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+        }
+
+        .questao-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .questao-enunciado {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .questao-opcoes {
+            list-style: none;
+            padding: 0;
+        }
+
+        .questao-opcoes li {
+            padding: 5px 0;
+        }
+
+        .questao-opcoes .resposta-correta {
+            background: #d4edda;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .upload-area {
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            background: #e3f2fd;
+            border-color: #0056b3;
+        }
+
+        .upload-area.dragover {
+            background: #e3f2fd;
+            border-color: #0056b3;
+        }
+
+        .upload-progress {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #007bff;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .provas-criadas {
+            margin-top: 30px;
+        }
+
+        .prova-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .prova-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .prova-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="professor-container">
+        <header class="header">
+            <h1>👨‍🏫 Painel do Professor</h1>
+            <p>Sistema de criação e gerenciamento de provas</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('criar-prova')">
+                📝 Criar Prova Manual
+            </div>
+            <div class="tab" onclick="showTab('upload-pdf')">
+                📄 Upload PDF
+            </div>
+            <div class="tab" onclick="showTab('gerenciar-provas')">
+                📚 Gerenciar Provas
+            </div>
+        </div>
+
+        <!-- Tab: Criar Prova Manual -->
+        <div id="criar-prova" class="tab-content active">
+            <h2>📝 Criar Nova Prova</h2>
+            
+            <form id="prova-form">
+                <div class="form-group">
+                    <label for="titulo-prova">Título da Prova:</label>
+                    <input type="text" id="titulo-prova" name="titulo" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="disciplina-prova">Disciplina:</label>
+                    <input type="text" id="disciplina-prova" name="disciplina" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="turma-prova">Turma:</label>
+                    <input type="text" id="turma-prova" name="turma" required>
+                </div>
+
+                <h3>Questões da Prova</h3>
+                <div id="questoes-container">
+                    <!-- Questões serão adicionadas aqui dinamicamente -->
+                </div>
+
+                <button type="button" class="btn btn-primary" onclick="adicionarQuestao()">
+                    ➕ Adicionar Questão
+                </button>
+
+                <div style="margin-top: 30px;">
+                    <button type="submit" class="btn btn-success">
+                        💾 Salvar Prova
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="limparFormulario()">
+                        🗑️ Limpar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tab: Upload PDF -->
+        <div id="upload-pdf" class="tab-content">
+            <h2>📄 Upload de Prova em PDF</h2>
+            
+            <div class="upload-area" id="upload-area" onclick="document.getElementById('pdf-file').click()">
+                <div>
+                    <h3>📁 Clique aqui ou arraste o arquivo PDF</h3>
+                    <p>Formatos aceitos: PDF</p>
+                    <p>Tamanho máximo: 10MB</p>
+                </div>
+            </div>
+
+            <input type="file" id="pdf-file" accept=".pdf" style="display: none;" onchange="handleFileSelect(event)">
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="titulo-pdf">Título da Prova:</label>
+                <input type="text" id="titulo-pdf" name="titulo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="disciplina-pdf">Disciplina:</label>
+                <input type="text" id="disciplina-pdf" name="disciplina" required>
+            </div>
+
+            <div class="form-group">
+                <label for="turma-pdf">Turma:</label>
+                <input type="text" id="turma-pdf" name="turma" required>
+            </div>
+
+            <div class="upload-progress" id="upload-progress">
+                <p>Processando PDF...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button type="button" class="btn btn-success" id="processar-pdf" onclick="processarPDF()" disabled>
+                    🔄 Processar PDF e Gerar Provas
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: Gerenciar Provas -->
+        <div id="gerenciar-provas" class="tab-content">
+            <h2>📚 Provas Criadas</h2>
+            
+            <div class="provas-criadas" id="provas-criadas">
+                <!-- Provas serão carregadas aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let questoes = [];
+        let pdfFile = null;
+
+        // Função para alternar entre tabs
+        function showTab(tabName) {
+            // Remove active de todas as tabs e contents
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Adiciona active na tab selecionada
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            // Se for a tab de gerenciar provas, carrega as provas
+            if (tabName === 'gerenciar-provas') {
+                carregarProvas();
+            }
+        }
+
+        // Função para adicionar nova questão
+        function adicionarQuestao() {
+            const container = document.getElementById('questoes-container');
+            const questaoNum = questoes.length + 1;
+            
+            const questaoDiv = document.createElement('div');
+            questaoDiv.className = 'questao-item';
+            questaoDiv.innerHTML = `
+                <div class="questao-header">
+                    <h4>Questão ${questaoNum}</h4>
+                    <button type="button" class="btn btn-danger btn-remove-opcao" onclick="removerQuestao(this)">
+                        🗑️ Remover
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Enunciado da Questão:</label>
+                    <textarea name="enunciado" placeholder="Digite o enunciado da questão..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Área/Matéria:</label>
+                    <input type="text" name="area" placeholder="Ex: Matemática, Português, etc." required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Opções de Resposta:</label>
+                    <div class="opcoes-container" id="opcoes-${questaoNum}">
+                        <div class="opcao-item">
+                            <input type="radio" name="resposta-correta-${questaoNum}" value="0" required>
+                            <input type="text" placeholder="Opção A" required class="opcao-input">
+                            <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)" style="display: none;">🗑️</button>
+                        </div>
+                        <div class="opcao-item">
+                            <input type="radio" name="resposta-correta-${questaoNum}" value="1" required>
+                            <input type="text" placeholder="Opção B" required class="opcao-input">
+                            <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)" style="display: none;">🗑️</button>
+                        </div>
+                        <div class="opcao-item">
+                            <input type="radio" name="resposta-correta-${questaoNum}" value="2" required>
+                            <input type="text" placeholder="Opção C" required class="opcao-input">
+                            <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)" style="display: none;">🗑️</button>
+                        </div>
+                        <div class="opcao-item">
+                            <input type="radio" name="resposta-correta-${questaoNum}" value="3" required>
+                            <input type="text" placeholder="Opção D" required class="opcao-input">
+                            <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)" style="display: none;">🗑️</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-add-opcao" onclick="adicionarOpcao(${questaoNum})">➕ Adicionar Opção</button>
+                    <p><small>Marque a opção correta com o botão de rádio</small></p>
+                </div>
+            `;
+            
+            container.appendChild(questaoDiv);
+            questoes.push({});
+        }
+
+        // Função para remover questão
+        function removerQuestao(button) {
+            const questaoDiv = button.closest('.questao-item');
+            const container = document.getElementById('questoes-container');
+            container.removeChild(questaoDiv);
+            
+            // Renumera as questões restantes
+            renumerarQuestoes();
+        }
+
+        // Função para renumerar questões
+        function renumerarQuestoes() {
+            const questoesDivs = document.querySelectorAll('.questao-item');
+            questoesDivs.forEach((div, index) => {
+                const header = div.querySelector('.questao-header h4');
+                header.textContent = `Questão ${index + 1}`;
+            });
+        }
+
+        // Função para adicionar nova opção
+        function adicionarOpcao(questaoNum) {
+            const opcoesContainer = document.getElementById(`opcoes-${questaoNum}`);
+            const opcoesExistentes = opcoesContainer.querySelectorAll('.opcao-item');
+            const novaOpcaoIndex = opcoesExistentes.length;
+            const letra = String.fromCharCode(65 + novaOpcaoIndex);
+            
+            const novaOpcaoDiv = document.createElement('div');
+            novaOpcaoDiv.className = 'opcao-item';
+            novaOpcaoDiv.innerHTML = `
+                <input type="radio" name="resposta-correta-${questaoNum}" value="${novaOpcaoIndex}" required>
+                <input type="text" placeholder="Opção ${letra}" required class="opcao-input">
+                <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)">🗑️</button>
+            `;
+            
+            opcoesContainer.appendChild(novaOpcaoDiv);
+            
+            // Mostra botões de remover se tiver mais de 2 opções
+            if (opcoesExistentes.length >= 2) {
+                opcoesExistentes.forEach(opcao => {
+                    const btnRemover = opcao.querySelector('.btn-remove-opcao');
+                    if (btnRemover) btnRemover.style.display = 'inline-block';
+                });
+            }
+        }
+
+        // Função para remover opção
+        function removerOpcao(button) {
+            const opcaoItem = button.closest('.opcao-item');
+            const opcoesContainer = opcaoItem.parentElement;
+            const opcoesRestantes = opcoesContainer.querySelectorAll('.opcao-item');
+            
+            // Não permite remover se tiver apenas 2 opções
+            if (opcoesRestantes.length <= 2) {
+                alert('É necessário ter pelo menos 2 opções de resposta.');
+                return;
+            }
+            
+            opcaoItem.remove();
+            
+            // Renumera as opções restantes
+            renumerarOpcoes(opcoesContainer);
+            
+            // Esconde botões de remover se tiver apenas 2 opções
+            if (opcoesContainer.querySelectorAll('.opcao-item').length <= 2) {
+                opcoesContainer.querySelectorAll('.btn-remove-opcao').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
+        }
+
+        // Função para renumerar opções
+        function renumerarOpcoes(container) {
+            const opcoes = container.querySelectorAll('.opcao-item');
+            opcoes.forEach((opcao, index) => {
+                const radio = opcao.querySelector('input[type="radio"]');
+                const input = opcao.querySelector('.opcao-input');
+                const letra = String.fromCharCode(65 + index);
+                
+                radio.value = index;
+                input.placeholder = `Opção ${letra}`;
+            });
+        }
+
+        // Função para limpar formulário
+        function limparFormulario() {
+            document.getElementById('prova-form').reset();
+            document.getElementById('questoes-container').innerHTML = '';
+            questoes = [];
+        }
+
+        // Função para lidar com seleção de arquivo
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                pdfFile = file;
+                document.getElementById('processar-pdf').disabled = false;
+                document.getElementById('upload-area').innerHTML = `
+                    <div>
+                        <h3>✅ Arquivo selecionado</h3>
+                        <p><strong>Nome:</strong> ${file.name}</p>
+                        <p><strong>Tamanho:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                `;
+            } else {
+                alert('Por favor, selecione um arquivo PDF válido.');
+            }
+        }
+
+        // Função para processar PDF
+        function processarPDF() {
+            if (!pdfFile) {
+                alert('Por favor, selecione um arquivo PDF primeiro.');
+                return;
+            }
+
+            const titulo = document.getElementById('titulo-pdf').value;
+            const disciplina = document.getElementById('disciplina-pdf').value;
+            const turma = document.getElementById('turma-pdf').value;
+
+            if (!titulo || !disciplina || !turma) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            // Mostra progresso
+            document.getElementById('upload-progress').style.display = 'block';
+            document.getElementById('processar-pdf').disabled = true;
+
+            // Simula processamento
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                document.getElementById('progress-fill').style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        alert('PDF processado com sucesso! As provas foram geradas e os QR codes criados.');
+                        document.getElementById('upload-progress').style.display = 'none';
+                        document.getElementById('processar-pdf').disabled = false;
+                        
+                        // Limpa o formulário
+                        document.getElementById('pdf-file').value = '';
+                        document.getElementById('titulo-pdf').value = '';
+                        document.getElementById('disciplina-pdf').value = '';
+                        document.getElementById('turma-pdf').value = '';
+                        document.getElementById('upload-area').innerHTML = `
+                            <div>
+                                <h3>📁 Clique aqui ou arraste o arquivo PDF</h3>
+                                <p>Formatos aceitos: PDF</p>
+                                <p>Tamanho máximo: 10MB</p>
+                            </div>
+                        `;
+                        pdfFile = null;
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // Função para carregar provas criadas
+        async function carregarProvas() {
+            try {
+                const response = await fetch('/api/provas-criadas');
+                const data = await response.json();
+                
+                const provasContainer = document.getElementById('provas-criadas');
+                
+                if (data.success && data.provas.length > 0) {
+                    provasContainer.innerHTML = data.provas.map(prova => `
+                        <div class="prova-card">
+                            <div class="prova-header">
+                                <h3>${prova.titulo} - ${prova.turma}</h3>
+                                <span class="badge">${prova.questoes.length} questões</span>
+                            </div>
+                            <p><strong>Disciplina:</strong> ${prova.disciplina}</p>
+                            <p><strong>Criada em:</strong> ${new Date(prova.dataCriacao).toLocaleDateString('pt-BR')}</p>
+                            <p><strong>Tipo:</strong> ${prova.fonte === 'manual' ? '📝 Manual' : '📄 PDF'}</p>
+                            <div class="prova-actions">
+                                <button class="btn btn-primary" onclick="visualizarProva('${prova.id}')">👁️ Visualizar</button>
+                                <button class="btn btn-success" onclick="gerarProvasAlunos('${prova.id}')">🎲 Gerar para Alunos</button>
+                                <button class="btn btn-danger" onclick="excluirProva('${prova.id}')">🗑️ Excluir</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    provasContainer.innerHTML = '<p>Nenhuma prova criada ainda.</p>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar provas:', error);
+                document.getElementById('provas-criadas').innerHTML = '<p>Erro ao carregar provas.</p>';
+            }
+        }
+
+        // Drag and drop para upload de PDF
+        const uploadArea = document.getElementById('upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                pdfFile = files[0];
+                document.getElementById('processar-pdf').disabled = false;
+                document.getElementById('upload-area').innerHTML = `
+                    <div>
+                        <h3>✅ Arquivo selecionado</h3>
+                        <p><strong>Nome:</strong> ${files[0].name}</p>
+                        <p><strong>Tamanho:</strong> ${(files[0].size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                `;
+            } else {
+                alert('Por favor, selecione um arquivo PDF válido.');
+            }
+        });
+
+        // Função para salvar prova manual
+        document.getElementById('prova-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const titulo = document.getElementById('titulo-prova').value;
+            const disciplina = document.getElementById('disciplina-prova').value;
+            const turma = document.getElementById('turma-prova').value;
+            
+            // Coleta as questões do formulário
+            const questoesFormulario = [];
+            const questoesDivs = document.querySelectorAll('.questao-item');
+            
+            questoesDivs.forEach((questaoDiv, index) => {
+                const enunciado = questaoDiv.querySelector('textarea[name="enunciado"]').value;
+                const area = questaoDiv.querySelector('input[name="area"]').value;
+                const opcoes = [];
+                const opcoesInputs = questaoDiv.querySelectorAll('.opcoes-container .opcao-input');
+                const respostaCorretaRadio = questaoDiv.querySelector('input[name^="resposta-correta"]:checked');
+                
+                if (!respostaCorretaRadio) {
+                    alert(`Por favor, marque a resposta correta para a Questão ${index + 1}.`);
+                    return;
+                }
+                
+                opcoesInputs.forEach(input => {
+                    if (input.value.trim()) {
+                        opcoes.push(input.value.trim());
+                    }
+                });
+                
+                if (opcoes.length < 2) {
+                    alert(`A Questão ${index + 1} deve ter pelo menos 2 opções de resposta.`);
+                    return;
+                }
+                
+                questoesFormulario.push({
+                    enunciado,
+                    area,
+                    opcoes,
+                    respostaCorreta: parseInt(respostaCorretaRadio.value)
+                });
+            });
+            
+            const dadosProva = {
+                titulo,
+                disciplina,
+                turma,
+                questoes: questoesFormulario
+            };
+            
+            try {
+                const response = await fetch('/api/criar-prova', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dadosProva)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Prova criada com sucesso!');
+                    limparFormulario();
+                    // Atualiza a lista de provas se estivermos na aba de gerenciamento
+                    if (document.getElementById('gerenciar-provas').classList.contains('active')) {
+                        carregarProvas();
+                    }
+                } else {
+                    alert('Erro ao criar prova: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Erro ao criar prova:', error);
+                alert('Erro ao criar prova. Tente novamente.');
+            }
+        });
+
+        // Função para processar PDF real
+        async function processarPDF() {
+            if (!pdfFile) {
+                alert('Por favor, selecione um arquivo PDF primeiro.');
+                return;
+            }
+
+            const titulo = document.getElementById('titulo-pdf').value;
+            const disciplina = document.getElementById('disciplina-pdf').value;
+            const turma = document.getElementById('turma-pdf').value;
+
+            if (!titulo || !disciplina || !turma) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            // Mostra progresso
+            document.getElementById('upload-progress').style.display = 'block';
+            document.getElementById('processar-pdf').disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('pdf', pdfFile);
+                formData.append('titulo', titulo);
+                formData.append('disciplina', disciplina);
+                formData.append('turma', turma);
+
+                const response = await fetch('/api/upload-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`PDF processado com sucesso! ${result.provasEmbaralhadas} provas embaralhadas foram geradas.`);
+                    
+                    // Limpa o formulário
+                    document.getElementById('pdf-file').value = '';
+                    document.getElementById('titulo-pdf').value = '';
+                    document.getElementById('disciplina-pdf').value = '';
+                    document.getElementById('turma-pdf').value = '';
+                    document.getElementById('upload-area').innerHTML = `
+                        <div>
+                            <h3>📁 Clique aqui ou arraste o arquivo PDF</h3>
+                            <p>Formatos aceitos: PDF</p>
+                            <p>Tamanho máximo: 10MB</p>
+                        </div>
+                    `;
+                    pdfFile = null;
+                    
+                    // Atualiza a lista de provas se estivermos na aba de gerenciamento
+                    if (document.getElementById('gerenciar-provas').classList.contains('active')) {
+                        carregarProvas();
+                    }
+                } else {
+                    alert('Erro ao processar PDF: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Erro ao processar PDF:', error);
+                alert('Erro ao processar PDF. Tente novamente.');
+            } finally {
+                document.getElementById('upload-progress').style.display = 'none';
+                document.getElementById('processar-pdf').disabled = false;
+            }
+        }
+
+        // Função para visualizar prova
+        async function visualizarProva(provaId) {
+            try {
+                const response = await fetch(`/api/prova/${provaId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Gera QR codes para cada questão
+                    const questoesComQR = await Promise.all(
+                        data.prova.questoes.map(async (questao, index) => {
+                            const qrCodeData = await gerarQRCode(`Questão: ${questao.id} - ${questao.area} - Prova: ${data.prova.titulo}`);
+                            return {
+                                ...questao,
+                                qrCode: qrCodeData
+                            };
+                        })
+                    );
+
+                    // Abre uma nova janela com a prova
+                    const novaJanela = window.open('', '_blank');
+                    novaJanela.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>${data.prova.titulo}</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; margin: 20px; }
+                                .prova-header { text-align: center; border-bottom: 2px solid #ccc; padding-bottom: 20px; margin-bottom: 30px; }
+                                .questao { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+                                .opcoes { list-style: none; padding: 0; }
+                                .opcoes li { padding: 5px 0; }
+                                .qr-code-container { display: flex; justify-content: center; align-items: center; margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; }
+                                .qr-code { max-width: 100px; max-height: 100px; }
+                                .questao-info { margin-left: 15px; }
+                                .print-button { position: fixed; top: 20px; right: 20px; background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+                                @media print { .print-button { display: none; } }
+                            </style>
+                        </head>
+                        <body>
+                            <button class="print-button" onclick="window.print()">🖨️ Imprimir Prova</button>
+                            <div class="prova-header">
+                                <h1>📝 ${data.prova.titulo}</h1>
+                                <p><strong>Disciplina:</strong> ${data.prova.disciplina}</p>
+                                <p><strong>Turma:</strong> ${data.prova.turma}</p>
+                                <p><strong>Tipo:</strong> ${data.prova.fonte === 'manual' ? 'Manual' : 'PDF'}</p>
+                                <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+                            </div>
+                            ${questoesComQR.map((q, index) => `
+                                <div class="questao">
+                                    <h3>Questão ${index + 1} - ${q.area}</h3>
+                                    <p>${q.enunciado}</p>
+                                    <ul class="opcoes">
+                                        ${q.opcoes.map((opcao, i) => `
+                                            <li>${String.fromCharCode(65 + i)}) ${opcao} ${i === q.respostaCorreta ? '(CORRETA)' : ''}</li>
+                                        `).join('')}
+                                    </ul>
+                                    <div class="qr-code-container">
+                                        <img src="${q.qrCode}" alt="QR Code" class="qr-code">
+                                        <div class="questao-info">
+                                            <p><strong>ID:</strong> ${q.id}</p>
+                                            <p><strong>Área:</strong> ${q.area}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </body>
+                        </html>
+                    `);
+                } else {
+                    alert('Erro ao carregar prova: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao visualizar prova:', error);
+                alert('Erro ao visualizar prova.');
+            }
+        }
+
+        // Função para gerar QR Code
+        async function gerarQRCode(data) {
+            try {
+                const response = await fetch('/api/gerar-qr', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ data })
+                });
+                const result = await response.json();
+                return result.qrCode;
+            } catch (error) {
+                console.error('Erro ao gerar QR Code:', error);
+                return null;
+            }
+        }
+
+        // Função para gerar provas para alunos
+        function gerarProvasAlunos(provaId) {
+            alert('Funcionalidade de gerar provas para alunos será implementada em breve!');
+        }
+
+        // Função para excluir prova
+        function excluirProva(provaId) {
+            if (confirm('Tem certeza que deseja excluir esta prova?')) {
+                alert('Funcionalidade de exclusão será implementada em breve!');
+            }
+        }
+
+        // Adiciona uma questão inicial
+        adicionarQuestao();
+    </script>
+</body>
+</html>

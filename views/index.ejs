@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Provas - Alunos</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📚 Sistema de Provas Escolares</h1>
+            <p>Geração de provas aleatórias e únicas por aluno</p>
+            <div class="header-actions">
+                <a href="/professor" class="btn btn-primary">👨‍🏫 Painel do Professor</a>
+                <a href="/" class="btn btn-secondary">👥 Lista de Alunos</a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="students-section">
+                <h2>👥 Lista de Alunos</h2>
+                
+                <% if (alunos.length === 0) { %>
+                    <div class="no-students">
+                        <p>Nenhum aluno cadastrado no sistema.</p>
+                    </div>
+                <% } else { %>
+                    <div class="students-grid">
+                        <% alunos.forEach(aluno => { %>
+                            <div class="student-card">
+                                <div class="student-info">
+                                    <h3><%= aluno.nome %></h3>
+                                    <p class="turma">Turma: <%= aluno.turma %></p>
+                                    <p class="id">ID: <%= aluno.id %></p>
+                                </div>
+                                
+                                <div class="student-actions">
+                                    <a href="/prova/<%= aluno.id %>" class="btn btn-primary">
+                                        📝 Ver Prova
+                                    </a>
+                                    <button onclick="gerarProva(<%= aluno.id %>)" class="btn btn-secondary">
+                                        🎲 Gerar Nova Prova
+                                    </button>
+                                </div>
+                                
+                                <div id="status-<%= aluno.id %>" class="status-message"></div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="info-section">
+                <h3>ℹ️ Como Funciona</h3>
+                <ul>
+                    <li>Cada aluno recebe uma prova única e aleatória</li>
+                    <li>As questões são selecionadas aleatoriamente do banco de questões</li>
+                    <li>Cada questão possui um QR Code para identificação</li>
+                    <li>A mesma prova é mantida para o mesmo aluno</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Sistema de Provas - Desenvolvido com Node.js e Express</p>
+        </footer>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
+

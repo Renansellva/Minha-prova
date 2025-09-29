@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= prova.titulo %> - <%= aluno.nome %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .timer {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .prova-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .prova-title {
+            font-size: 2.2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .aluno-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .instrucoes {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .instrucoes h4 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+
+        .instrucoes ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .instrucoes li {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .questao {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .questao-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .questao-numero {
+            font-weight: bold;
+            color: #495057;
+            font-size: 1.2em;
+        }
+
+        .questao-area {
+            background: #667eea;
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .questao-enunciado {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #212529;
+        }
+
+        .opcoes {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .opcao {
+            background: #f8f9fa;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .opcao:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .opcao.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .opcao input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .opcao label {
+            cursor: pointer;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .qr-code-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .qr-code {
+            max-width: 100px;
+            max-height: 100px;
+        }
+
+        .questao-info {
+            margin-left: 20px;
+            text-align: center;
+        }
+
+        .questao-info p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .prova-actions {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: transform 0.2s;
+            margin: 0 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #667eea;
+            height: 100%;
+            transition: width 0.3s;
+            border-radius: 5px;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        @media print {
+            .header, .prova-actions {
+                display: none;
+            }
+            
+            .questao {
+                page-break-inside: avoid;
+                margin-bottom: 30px;
+            }
+            
+            .qr-code-container {
+                background: white;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">📚 Minha Prova</div>
+            <div class="timer" id="timer">
+                ⏱️ <span id="time-display">00:00</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="prova-header">
+            <h1 class="prova-title">📝 <%= prova.titulo %></h1>
+            
+            <div class="aluno-info">
+                <div class="info-item">
+                    <div class="info-label">👤 Aluno</div>
+                    <div class="info-value"><%= aluno.nome %></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🏫 Turma</div>
+                    <div class="info-value"><%= prova.turma_nome %></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">📚 Disciplina</div>
+                    <div class="info-value"><%= prova.disciplina %></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">❓ Questões</div>
+                    <div class="info-value"><%= questoes.length %></div>
+                </div>
+            </div>
+
+            <div class="progress-text">
+                <strong>Progresso:</strong> <span id="progress-text">0 de <%= questoes.length %> questões respondidas</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+
+                <!-- QR Code único da prova -->
+                <div style="text-align: center; margin: 20px 0; padding: 15px; background: #e3f2fd; border-radius: 10px; border: 2px solid #2196f3;">
+                    <h4 style="margin: 0 0 10px 0; color: #1976d2;">📱 Código QR da Prova</h4>
+                    <div id="qr-prova" class="qr-placeholder">
+                        <div style="width: 120px; height: 120px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 auto;">
+                            📱 QR
+                        </div>
+                    </div>
+                    <p style="margin: 8px 0 0 0; color: #1976d2; font-size: 0.9em;">
+                        Este código identifica toda a prova
+                    </p>
+                </div>
+
+                <div class="instrucoes">
+                    <h4>📋 Instruções:</h4>
+                    <ul>
+                        <li>Leia cada questão com atenção antes de responder</li>
+                        <li>Marque apenas uma alternativa por questão</li>
+                        <li>Use caneta azul ou preta</li>
+                        <li>O QR Code acima identifica toda a prova</li>
+                        <li>Revise suas respostas antes de finalizar</li>
+                    </ul>
+                </div>
+        </div>
+
+        <form id="prova-form">
+            <% questoes.forEach((questao, index) => { %>
+                <div class="questao" data-questao="<%= questao.id %>">
+                    <div class="questao-header">
+                        <span class="questao-numero">Questão <%= index + 1 %></span>
+                        <span class="questao-area"><%= questao.area %></span>
+                    </div>
+                    
+                    <div class="questao-enunciado">
+                        <%= questao.enunciado %>
+                    </div>
+                    
+                    <ul class="opcoes">
+                        <% JSON.parse(questao.opcoes).forEach((opcao, opcaoIndex) => { %>
+                            <li class="opcao">
+                                <input type="radio" name="questao-<%= questao.id %>" value="<%= opcaoIndex %>" id="q<%= questao.id %>-op<%= opcaoIndex %>">
+                                <label for="q<%= questao.id %>-op<%= opcaoIndex %>">
+                                    <%= String.fromCharCode(65 + opcaoIndex) %>) <%= opcao %>
+                                </label>
+                            </li>
+                        <% }); %>
+                    </ul>
+                    
+                    <div class="questao-info">
+                        <p><strong>ID:</strong> <%= questao.id %></p>
+                        <p><strong>Área:</strong> <%= questao.area %></p>
+                    </div>
+                </div>
+            <% }); %>
+        </form>
+
+        <div class="prova-actions">
+            <h3>Finalizar Prova</h3>
+            <p>Revise suas respostas antes de finalizar. Esta ação não pode ser desfeita.</p>
+            <button type="button" class="btn btn-secondary" onclick="salvarRascunho()">💾 Salvar Rascunho</button>
+            <button type="button" class="btn btn-success" onclick="finalizarProva()">✅ Finalizar Prova</button>
+        </div>
+    </div>
+
+    <script>
+        let tempoRestante = <%= prova.tempo_limite ? prova.tempo_limite * 60 : 0 %>;
+        let timerInterval;
+        let respostas = {};
+
+        // Inicializar timer se houver tempo limite
+        if (tempoRestante > 0) {
+            iniciarTimer();
+        }
+
+        function iniciarTimer() {
+            timerInterval = setInterval(() => {
+                tempoRestante--;
+                atualizarDisplayTimer();
+                
+                if (tempoRestante <= 0) {
+                    clearInterval(timerInterval);
+                    finalizarProva();
+                }
+            }, 1000);
+        }
+
+        function atualizarDisplayTimer() {
+            const horas = Math.floor(tempoRestante / 3600);
+            const minutos = Math.floor((tempoRestante % 3600) / 60);
+            const segundos = tempoRestante % 60;
+            
+            const display = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            document.getElementById('time-display').textContent = display;
+            
+            // Mudar cor quando restam menos de 5 minutos
+            if (tempoRestante <= 300) {
+                document.getElementById('timer').style.background = '#dc3545';
+            }
+        }
+
+        // Gerar QR code único para toda a prova
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('/api/gerar-qr', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: `PROVA: <%= prova.titulo %> | <%= prova.disciplina %> | <%= prova.turma_nome %> | Aluno: <%= aluno.nome %> | <%= questoes.length %> questões`
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('qr-prova').innerHTML = 
+                        `<img src="${result.qrCode}" alt="QR Code da Prova" style="max-width: 120px; max-height: 120px; border-radius: 8px;">`;
+                }
+            } catch (error) {
+                console.error('Erro ao gerar QR code da prova:', error);
+            }
+        });
+
+        // Adicionar funcionalidade de seleção de opções
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const questaoId = this.name.split('-')[1];
+                const opcaoIndex = parseInt(this.value);
+                
+                // Marcar opção como selecionada
+                const opcao = this.closest('.opcao');
+                const questao = opcao.closest('.questao');
+                
+                // Remover seleção anterior
+                questao.querySelectorAll('.opcao').forEach(o => o.classList.remove('selected'));
+                
+                // Marcar nova seleção
+                opcao.classList.add('selected');
+                
+                // Salvar resposta
+                respostas[questaoId] = opcaoIndex;
+                
+                // Atualizar progresso
+                atualizarProgresso();
+            });
+        });
+
+        function atualizarProgresso() {
+            const totalQuestoes = <%= questoes.length %>;
+            const respondidas = Object.keys(respostas).length;
+            const porcentagem = (respondidas / totalQuestoes) * 100;
+            
+            document.getElementById('progress-fill').style.width = porcentagem + '%';
+            document.getElementById('progress-text').textContent = `${respondidas} de ${totalQuestoes} questões respondidas`;
+        }
+
+        function salvarRascunho() {
+            // Salvar respostas no localStorage
+            localStorage.setItem('prova_<%= prova.id %>_<%= aluno.id %>', JSON.stringify(respostas));
+            alert('Rascunho salvo com sucesso!');
+        }
+
+        function finalizarProva() {
+            const totalQuestoes = <%= questoes.length %>;
+            const respondidas = Object.keys(respostas).length;
+            
+            if (respondidas < totalQuestoes) {
+                if (!confirm(`Você respondeu apenas ${respondidas} de ${totalQuestoes} questões. Deseja finalizar mesmo assim?`)) {
+                    return;
+                }
+            }
+            
+            // Enviar respostas
+            enviarRespostas();
+        }
+
+        async function enviarRespostas() {
+            try {
+                const dados = {
+                    provaId: <%= prova.id %>,
+                    alunoId: <%= aluno.id %>,
+                    respostas: respostas,
+                    tempoGasto: <%= prova.tempo_limite ? prova.tempo_limite * 60 : 0 %> - tempoRestante
+                };
+                
+                // Simular envio (em um sistema real, enviaria para o servidor)
+                console.log('Enviando respostas:', dados);
+                
+                alert('Prova finalizada com sucesso! Suas respostas foram enviadas.');
+                
+                // Limpar localStorage
+                localStorage.removeItem('prova_<%= prova.id %>_<%= aluno.id %>');
+                
+                // Redirecionar ou mostrar resultado
+                window.close();
+                
+            } catch (error) {
+                console.error('Erro ao enviar respostas:', error);
+                alert('Erro ao finalizar prova. Tente novamente.');
+            }
+        }
+
+        // Carregar rascunho salvo
+        window.addEventListener('load', function() {
+            const rascunho = localStorage.getItem('prova_<%= prova.id %>_<%= aluno.id %>');
+            if (rascunho) {
+                respostas = JSON.parse(rascunho);
+                
+                // Restaurar seleções
+                Object.keys(respostas).forEach(questaoId => {
+                    const radio = document.querySelector(`input[name="questao-${questaoId}"][value="${respostas[questaoId]}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('change'));
+                    }
+                });
+                
+                atualizarProgresso();
+            }
+        });
+
+        // Avisar antes de sair se houver respostas não salvas
+        window.addEventListener('beforeunload', function(e) {
+            if (Object.keys(respostas).length > 0) {
+                e.preventDefault();
+                e.returnValue = 'Você tem respostas não salvas. Deseja realmente sair?';
+            }
+        });
+    </script>
+</body>
+</html>

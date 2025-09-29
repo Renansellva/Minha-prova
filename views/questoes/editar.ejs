@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Questão - Minha Prova</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .breadcrumb-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb-separator {
+            margin: 0 10px;
+            color: #666;
+        }
+
+        .breadcrumb-current {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-size: 2em;
+            color: #333;
+            margin: 0 0 20px 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .opcoes-container {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .opcoes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .opcoes-header h4 {
+            margin: 0;
+            color: #333;
+        }
+
+        .opcao-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .opcao-label {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 30px;
+        }
+
+        .opcao-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .opcao-radio {
+            margin: 0;
+        }
+
+        .btn-remove-opcao {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-remove-opcao:hover {
+            background: #c82333;
+        }
+
+        .btn-add-opcao {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .btn-add-opcao:hover {
+            background: #218838;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 1em;
+            transition: transform 0.2s;
+            margin: 0 5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .preview-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-section h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+
+        .questao-preview {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .opcoes-preview {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .opcao-preview {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+
+        .opcao-preview.correta {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">📚 Minha Prova</div>
+            <div>
+                <span>👋 Olá, <%= professor.nome %></span>
+                <a href="/logout" style="color: #dc3545; text-decoration: none; margin-left: 15px;">Sair</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="breadcrumb">
+                <a href="/dashboard" class="breadcrumb-link">🏠 Dashboard</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="/questoes" class="breadcrumb-link">❓ Questões</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="/questoes/<%= questao.id %>" class="breadcrumb-link">Visualizar Questão</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current">✏️ Editar</span>
+            </div>
+            <h1 class="page-title">✏️ Editar Questão</h1>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="/questoes/<%= questao.id %>" class="btn btn-secondary">← Voltar</a>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form id="editar-questao-form">
+                <div class="form-group">
+                    <label for="enunciado">Enunciado da Questão:</label>
+                    <textarea id="enunciado" name="enunciado" required placeholder="Digite o enunciado da questão aqui..."><%= questao.enunciado %></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="area">Área de Conhecimento:</label>
+                        <input type="text" id="area" name="area" required placeholder="Ex: Matemática, Português" value="<%= questao.area %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="nivel">Nível de Dificuldade:</label>
+                        <select id="nivel" name="nivel" required>
+                            <option value="facil" <%= questao.nivel_dificuldade === 'facil' ? 'selected' : '' %>>Fácil</option>
+                            <option value="medio" <%= questao.nivel_dificuldade === 'medio' ? 'selected' : '' %>>Médio</option>
+                            <option value="dificil" <%= questao.nivel_dificuldade === 'dificil' ? 'selected' : '' %>>Difícil</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Opções de Resposta:</label>
+                    <div class="opcoes-container">
+                        <div class="opcoes-header">
+                            <h4>📝 Opções</h4>
+                            <small style="color: #666;">Marque a opção correta</small>
+                        </div>
+                        <div id="opcoes-container">
+                            <% JSON.parse(questao.opcoes).forEach((opcao, index) => { %>
+                                <div class="opcao-item">
+                                    <input type="radio" name="respostaCorreta" value="<%= index %>" <%= index === questao.resposta_correta ? 'checked' : '' %> class="opcao-radio" required>
+                                    <span class="opcao-label"><%= String.fromCharCode(65 + index) %>)</span>
+                                    <input type="text" class="opcao-input" placeholder="Digite a opção <%= String.fromCharCode(65 + index) %>" value="<%= opcao %>" required>
+                                    <% if (index > 1) { %>
+                                        <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)">🗑️</button>
+                                    <% } %>
+                                </div>
+                            <% }); %>
+                        </div>
+                        <button type="button" class="btn-add-opcao" onclick="adicionarOpcao()">➕ Adicionar Opção</button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="cancelarEdicao()">❌ Cancelar</button>
+                    <button type="submit" class="btn btn-primary">✅ Salvar Alterações</button>
+                </div>
+            </form>
+
+            <div class="preview-section">
+                <h4>👁️ Pré-visualização</h4>
+                <div class="questao-preview">
+                    <div id="preview-enunciado"><%= questao.enunciado %></div>
+                    <ul class="opcoes-preview" id="preview-opcoes">
+                        <% JSON.parse(questao.opcoes).forEach((opcao, index) => { %>
+                            <li class="opcao-preview <%= index === questao.resposta_correta ? 'correta' : '' %>">
+                                <%= String.fromCharCode(65 + index) %>) <%= opcao %>
+                                <% if (index === questao.resposta_correta) { %>✓<% } %>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let opcaoCount = <%= JSON.parse(questao.opcoes).length %>;
+
+        function adicionarOpcao() {
+            const container = document.getElementById('opcoes-container');
+            const novaOpcao = document.createElement('div');
+            novaOpcao.className = 'opcao-item';
+            novaOpcao.innerHTML = `
+                <input type="radio" name="respostaCorreta" value="${opcaoCount}" class="opcao-radio">
+                <span class="opcao-label">${String.fromCharCode(65 + opcaoCount)})</span>
+                <input type="text" class="opcao-input" placeholder="Digite a opção ${String.fromCharCode(65 + opcaoCount)}" required>
+                <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)">🗑️</button>
+            `;
+            container.appendChild(novaOpcao);
+            opcaoCount++;
+            atualizarPreview();
+        }
+
+        function removerOpcao(button) {
+            const opcaoItem = button.parentElement;
+            opcaoItem.remove();
+            renumerarOpcoes();
+            atualizarPreview();
+        }
+
+        function renumerarOpcoes() {
+            const opcoes = document.querySelectorAll('.opcao-item');
+            opcoes.forEach((opcao, index) => {
+                const radio = opcao.querySelector('.opcao-radio');
+                const label = opcao.querySelector('.opcao-label');
+                const input = opcao.querySelector('.opcao-input');
+                
+                radio.value = index;
+                label.textContent = String.fromCharCode(65 + index) + ')';
+                input.placeholder = `Digite a opção ${String.fromCharCode(65 + index)}`;
+            });
+            opcaoCount = opcoes.length;
+        }
+
+        function atualizarPreview() {
+            const enunciado = document.getElementById('enunciado').value;
+            const opcoes = document.querySelectorAll('.opcao-item');
+            const respostaCorreta = document.querySelector('input[name="respostaCorreta"]:checked');
+            
+            document.getElementById('preview-enunciado').textContent = enunciado;
+            
+            const previewOpcoes = document.getElementById('preview-opcoes');
+            previewOpcoes.innerHTML = '';
+            
+            opcoes.forEach((opcao, index) => {
+                const input = opcao.querySelector('.opcao-input');
+                const texto = input.value;
+                
+                const li = document.createElement('li');
+                li.className = 'opcao-preview';
+                if (respostaCorreta && respostaCorreta.value == index) {
+                    li.classList.add('correta');
+                }
+                
+                li.innerHTML = `${String.fromCharCode(65 + index)}) ${texto}`;
+                if (respostaCorreta && respostaCorreta.value == index) {
+                    li.innerHTML += ' ✓';
+                }
+                
+                previewOpcoes.appendChild(li);
+            });
+        }
+
+        // Atualizar preview em tempo real
+        document.getElementById('enunciado').addEventListener('input', atualizarPreview);
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'respostaCorreta') {
+                atualizarPreview();
+            }
+        });
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('opcao-input')) {
+                atualizarPreview();
+            }
+        });
+
+        // Enviar formulário
+        document.getElementById('editar-questao-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const opcoes = [];
+            const opcoesInputs = document.querySelectorAll('.opcao-input');
+            
+            opcoesInputs.forEach(input => {
+                if (input.value.trim()) {
+                    opcoes.push(input.value.trim());
+                }
+            });
+            
+            if (opcoes.length < 2) {
+                alert('Adicione pelo menos 2 opções de resposta.');
+                return;
+            }
+            
+            const respostaCorreta = document.querySelector('input[name="respostaCorreta"]:checked');
+            if (!respostaCorreta) {
+                alert('Selecione a resposta correta.');
+                return;
+            }
+            
+            const formData = {
+                enunciado: document.getElementById('enunciado').value,
+                area: document.getElementById('area').value,
+                nivelDificuldade: document.getElementById('nivel').value,
+                opcoes: opcoes,
+                respostaCorreta: parseInt(respostaCorreta.value)
+            };
+            
+            try {
+                const response = await fetch('/questoes/<%= questao.id %>/editar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Questão atualizada com sucesso!');
+                    window.location.href = '/questoes/<%= questao.id %>';
+                } else {
+                    alert('Erro ao atualizar questão: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar questão. Tente novamente.');
+            }
+        });
+
+        function cancelarEdicao() {
+            if (confirm('Tem certeza que deseja cancelar? As alterações serão perdidas.')) {
+                window.location.href = '/questoes/<%= questao.id %>';
+            }
+        }
+    </script>
+</body>
+</html>

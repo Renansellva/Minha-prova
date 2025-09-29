@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Minha Prova</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .login-title {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .demo-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .demo-info h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .demo-info p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            margin-left: 10px;
+        }
+
+        .user-options {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .user-option {
+            background: #f8f9fa;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .user-option:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        .user-option strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">📚</div>
+        <h1 class="login-title">Minha Prova</h1>
+        <p style="color: #666; margin-bottom: 30px;">Sistema de Gerenciamento de Provas</p>
+
+        <div class="error-message" id="error-message"></div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" name="email" required placeholder="seu@email.com">
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" required placeholder="Sua senha">
+            </div>
+
+            <button type="submit" class="login-btn" id="login-btn">
+                Entrar
+                <span class="loading">⏳</span>
+            </button>
+        </form>
+
+        <div class="demo-info">
+            <h3>🔑 Usuários Disponíveis</h3>
+            <div class="user-options">
+                <div class="user-option" onclick="preencherLogin('admin@escola.com', 'admin123')">
+                    <strong>👨‍💼 Administrador</strong><br>
+                    admin@escola.com / admin123
+                </div>
+                <div class="user-option" onclick="preencherLogin('maria@escola.com', 'maria123')">
+                    <strong>👩‍🏫 Maria Silva</strong><br>
+                    maria@escola.com / maria123
+                </div>
+                <div class="user-option" onclick="preencherLogin('joao@escola.com', 'joao123')">
+                    <strong>👨‍🏫 João Santos</strong><br>
+                    joao@escola.com / joao123
+                </div>
+                <div class="user-option" onclick="preencherLogin('ana@escola.com', 'ana123')">
+                    <strong>👩‍🏫 Ana Costa</strong><br>
+                    ana@escola.com / ana123
+                </div>
+            </div>
+            <p style="font-size: 0.8em; color: #999; margin-top: 15px;">
+                Clique em um usuário para preencher automaticamente
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const loginBtn = document.getElementById('login-btn');
+            const loading = document.querySelector('.loading');
+            const errorMessage = document.getElementById('error-message');
+            
+            // Mostrar loading
+            loginBtn.disabled = true;
+            loading.style.display = 'inline';
+            errorMessage.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, senha })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Redirecionar para o dashboard
+                    window.location.href = '/dashboard';
+                } else {
+                    errorMessage.textContent = result.message || 'Erro ao fazer login';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Erro de conexão. Tente novamente.';
+                errorMessage.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        function preencherLogin(email, senha) {
+            document.getElementById('email').value = email;
+            document.getElementById('senha').value = senha;
+        }
+
+        // Preencher automaticamente os dados de admin por padrão
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email').value = 'admin@escola.com';
+            document.getElementById('senha').value = 'admin123';
+        });
+    </script>
+</body>
+</html>

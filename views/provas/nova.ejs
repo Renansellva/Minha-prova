@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Prova - Minha Prova</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .breadcrumb-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb-separator {
+            margin: 0 10px;
+            color: #666;
+        }
+
+        .breadcrumb-current {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-size: 2em;
+            color: #333;
+            margin: 0 0 20px 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .questoes-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e1e5e9;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .questoes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .questao-card {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .questao-card:hover {
+            border-color: #667eea;
+        }
+
+        .questao-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .questao-checkbox {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .questao-enunciado {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #333;
+            padding-right: 30px;
+        }
+
+        .questao-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .questao-area {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e1e5e9;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .selected-questoes {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .selected-questoes h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+
+        .selected-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .selected-list li {
+            background: white;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-questao {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">📚 Minha Prova</div>
+            <div>
+                <span>👋 Olá, <%= professor.nome %></span>
+                <a href="/logout" style="color: #dc3545; text-decoration: none; margin-left: 15px;">Sair</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="breadcrumb">
+                <a href="/dashboard" class="breadcrumb-link">🏠 Dashboard</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="/provas" class="breadcrumb-link">📝 Provas</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current">➕ Nova Prova</span>
+            </div>
+            <h1 class="page-title">➕ Nova Prova</h1>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="/provas" class="btn btn-secondary">← Voltar às Provas</a>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form id="nova-prova-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="titulo">Título da Prova:</label>
+                        <input type="text" id="titulo" name="titulo" required placeholder="Ex: Prova de Matemática - 1º Bimestre">
+                    </div>
+                    <div class="form-group">
+                        <label for="disciplina">Disciplina (opcional):</label>
+                        <input type="text" id="disciplina" name="disciplina" placeholder="Ex: Matemática, Português, Cálculo">
+                        <small style="color: #666; font-size: 0.9em;">Deixe em branco se não se aplicar</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="turma">Turma/Série:</label>
+                    <input type="text" id="turma" name="turma_nome" placeholder="Ex: 9º Ano A, 8º Ano B, 1º Ano C" required>
+                    <small style="color: #666; font-size: 0.9em;">Digite o nome da turma ou série</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tempoLimite">Tempo Limite (minutos):</label>
+                        <input type="number" id="tempoLimite" name="tempoLimite" min="1" placeholder="Ex: 90">
+                    </div>
+                    <div class="form-group">
+                        <label for="descricao">Descrição (opcional):</label>
+                        <input type="text" id="descricao" name="descricao" placeholder="Ex: Prova sobre equações do 2º grau">
+                    </div>
+                </div>
+
+                <div class="questoes-section">
+                    <h3 class="section-title">❓ Selecionar Questões</h3>
+                    
+                    <div class="questoes-grid">
+                        <% questoes.forEach(questao => { %>
+                            <div class="questao-card" data-questao-id="<%= questao.id %>">
+                                <input type="checkbox" class="questao-checkbox" value="<%= questao.id %>">
+                                <div class="questao-enunciado"><%= questao.enunciado.substring(0, 100) %>...</div>
+                                <div class="questao-info">
+                                    <span>Criada em: <%= new Date(questao.created_at).toLocaleDateString('pt-BR') %></span>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+
+                    <div class="selected-questoes" id="selected-questoes" style="display: none;">
+                        <h4>📋 Questões Selecionadas (<span id="selected-count">0</span>)</h4>
+                        <ul class="selected-list" id="selected-list"></ul>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/provas" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">💾 Criar Prova</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedQuestoes = [];
+
+        // Selecionar/desselecionar questões
+        document.querySelectorAll('.questao-card').forEach(card => {
+            const checkbox = card.querySelector('.questao-checkbox');
+            
+            card.addEventListener('click', (e) => {
+                if (e.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                }
+                updateQuestaoSelection(checkbox);
+            });
+
+            checkbox.addEventListener('change', () => {
+                updateQuestaoSelection(checkbox);
+            });
+        });
+
+        function updateQuestaoSelection(checkbox) {
+            const questaoId = parseInt(checkbox.value);
+            const card = checkbox.closest('.questao-card');
+            
+            if (checkbox.checked) {
+                if (!selectedQuestoes.includes(questaoId)) {
+                    selectedQuestoes.push(questaoId);
+                }
+                card.classList.add('selected');
+            } else {
+                selectedQuestoes = selectedQuestoes.filter(id => id !== questaoId);
+                card.classList.remove('selected');
+            }
+            
+            updateSelectedQuestoesDisplay();
+        }
+
+        function updateSelectedQuestoesDisplay() {
+            const container = document.getElementById('selected-questoes');
+            const count = document.getElementById('selected-count');
+            const list = document.getElementById('selected-list');
+            
+            count.textContent = selectedQuestoes.length;
+            
+            if (selectedQuestoes.length > 0) {
+                container.style.display = 'block';
+                
+                list.innerHTML = selectedQuestoes.map((questaoId, index) => {
+                    const card = document.querySelector(`[data-questao-id="${questaoId}"]`);
+                    const enunciado = card.querySelector('.questao-enunciado').textContent;
+                    
+                    return `
+                        <li>
+                            <div>
+                                <strong>${index + 1}.</strong> ${enunciado}
+                            </div>
+                            <button type="button" class="remove-questao" onclick="removeQuestao(${questaoId})">Remover</button>
+                        </li>
+                    `;
+                }).join('');
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        function removeQuestao(questaoId) {
+            selectedQuestoes = selectedQuestoes.filter(id => id !== questaoId);
+            
+            const card = document.querySelector(`[data-questao-id="${questaoId}"]`);
+            const checkbox = card.querySelector('.questao-checkbox');
+            checkbox.checked = false;
+            card.classList.remove('selected');
+            
+            updateSelectedQuestoesDisplay();
+        }
+
+        // Enviar formulário
+        document.getElementById('nova-prova-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (selectedQuestoes.length === 0) {
+                alert('Por favor, selecione pelo menos uma questão.');
+                return;
+            }
+            
+            const formData = new FormData(this);
+            const data = {
+                titulo: formData.get('titulo'),
+                disciplina: formData.get('disciplina'),
+                descricao: formData.get('descricao'),
+                tempoLimite: formData.get('tempoLimite'),
+                turma_nome: formData.get('turma_nome'),
+                questoesIds: selectedQuestoes
+            };
+            
+            try {
+                const response = await fetch('/api/provas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Prova criada com sucesso!');
+                    window.location.href = '/provas';
+                } else {
+                    alert('Erro ao criar prova: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao criar prova. Tente novamente.');
+            }
+        });
+    </script>
+</body>
+</html>
