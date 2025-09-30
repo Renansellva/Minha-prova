@@ -102,7 +102,8 @@ class MemoryDatabase {
   }
 
   getProfessorById(id) {
-    return this.data.professores.find(p => p.id === id);
+    const idNum = parseInt(id);
+    return this.data.professores.find(p => p.id === idNum);
   }
 
   getAllProfessores() {
@@ -116,7 +117,8 @@ class MemoryDatabase {
 
   // Métodos para questões
   getQuestoes(professorId, area = null, search = null) {
-    let questoes = this.data.questoes.filter(q => q.professor_id === professorId);
+    const professorIdNum = parseInt(professorId);
+    let questoes = this.data.questoes.filter(q => q.professor_id === professorIdNum);
     
     if (area) {
       questoes = questoes.filter(q => q.area === area);
@@ -146,11 +148,14 @@ class MemoryDatabase {
   }
 
   getQuestaoById(questaoId, professorId) {
-    return this.data.questoes.find(q => q.id === questaoId && q.professor_id === professorId);
+    const questaoIdNum = parseInt(questaoId);
+    const professorIdNum = parseInt(professorId);
+    return this.data.questoes.find(q => q.id === questaoIdNum && q.professor_id === professorIdNum);
   }
 
   updateQuestao(questaoId, enunciado, area, opcoes, respostaCorreta, nivelDificuldade) {
-    const questao = this.data.questoes.find(q => q.id === questaoId);
+    const questaoIdNum = parseInt(questaoId);
+    const questao = this.data.questoes.find(q => q.id === questaoIdNum);
     if (questao) {
       questao.enunciado = enunciado;
       questao.area = area;
@@ -164,7 +169,8 @@ class MemoryDatabase {
   }
 
   deleteQuestao(questaoId) {
-    const index = this.data.questoes.findIndex(q => q.id === questaoId);
+    const questaoIdNum = parseInt(questaoId);
+    const index = this.data.questoes.findIndex(q => q.id === questaoIdNum);
     if (index !== -1) {
       this.data.questoes.splice(index, 1);
       return 1;
@@ -194,7 +200,8 @@ class MemoryDatabase {
   }
 
   getProvas(professorId) {
-    const provas = this.data.provas.filter(p => p.professor_id === professorId);
+    const professorIdNum = parseInt(professorId);
+    const provas = this.data.provas.filter(p => p.professor_id === professorIdNum);
     return provas.map(prova => {
       const questoesCount = this.data.prova_questoes.filter(pq => pq.prova_id === prova.id).length;
       return {
@@ -205,23 +212,26 @@ class MemoryDatabase {
   }
 
   getProvaById(provaId, professorId) {
-    return this.data.provas.find(p => p.id === provaId && p.professor_id === professorId);
+    const provaIdNum = parseInt(provaId);
+    const professorIdNum = parseInt(professorId);
+    return this.data.provas.find(p => p.id === provaIdNum && p.professor_id === professorIdNum);
   }
 
   addQuestaoProva(provaId, questaoId, ordem) {
     const id = this.data.nextId.prova_questoes++;
     this.data.prova_questoes.push({
       id,
-      prova_id: provaId,
-      questao_id: questaoId,
-      ordem
+      prova_id: parseInt(provaId),
+      questao_id: parseInt(questaoId),
+      ordem: parseInt(ordem)
     });
     return id;
   }
 
   getQuestoesProva(provaId) {
+    const provaIdNum = parseInt(provaId);
     return this.data.prova_questoes
-      .filter(pq => pq.prova_id === provaId)
+      .filter(pq => pq.prova_id === provaIdNum)
       .map(pq => {
         const questao = this.data.questoes.find(q => q.id === pq.questao_id);
         return questao ? { ...questao, ordem: pq.ordem } : null;
@@ -231,7 +241,8 @@ class MemoryDatabase {
   }
 
   updateProva(provaId, dados) {
-    const prova = this.data.provas.find(p => p.id === provaId);
+    const provaIdNum = parseInt(provaId);
+    const prova = this.data.provas.find(p => p.id === provaIdNum);
     if (prova) {
       prova.titulo = dados.titulo;
       prova.disciplina = dados.disciplina;
@@ -247,7 +258,8 @@ class MemoryDatabase {
   }
 
   removeQuestoesProva(provaId) {
-    this.data.prova_questoes = this.data.prova_questoes.filter(pq => pq.prova_id !== provaId);
+    const provaIdNum = parseInt(provaId);
+    this.data.prova_questoes = this.data.prova_questoes.filter(pq => pq.prova_id !== provaIdNum);
     return 1;
   }
 
@@ -256,7 +268,8 @@ class MemoryDatabase {
     this.removeQuestoesProva(provaId);
     
     // Remove a prova
-    const index = this.data.provas.findIndex(p => p.id === provaId);
+    const provaIdNum = parseInt(provaId);
+    const index = this.data.provas.findIndex(p => p.id === provaIdNum);
     if (index !== -1) {
       this.data.provas.splice(index, 1);
       return 1;
@@ -265,14 +278,15 @@ class MemoryDatabase {
   }
 
   deleteProfessor(professorId) {
+    const professorIdNum = parseInt(professorId);
     // Remove questões do professor
-    this.data.questoes = this.data.questoes.filter(q => q.professor_id !== professorId);
+    this.data.questoes = this.data.questoes.filter(q => q.professor_id !== professorIdNum);
     
     // Remove provas do professor
-    this.data.provas = this.data.provas.filter(p => p.professor_id !== professorId);
+    this.data.provas = this.data.provas.filter(p => p.professor_id !== professorIdNum);
     
     // Remove o professor
-    const index = this.data.professores.findIndex(p => p.id === professorId);
+    const index = this.data.professores.findIndex(p => p.id === professorIdNum);
     if (index !== -1) {
       this.data.professores.splice(index, 1);
       return 1;

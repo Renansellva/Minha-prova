@@ -288,7 +288,7 @@ class Database {
   getQuestoes(professorId, area = null, search = null) {
     return new Promise((resolve, reject) => {
       let query = 'SELECT * FROM questoes WHERE professor_id = ?';
-      let params = [professorId];
+      let params = [parseInt(professorId)];
       
       if (area) {
         query += ' AND area = ?';
@@ -345,7 +345,7 @@ class Database {
          WHERE p.professor_id = ? 
          GROUP BY p.id 
          ORDER BY p.created_at DESC`,
-        [professorId],
+        [parseInt(professorId)],
         (err, rows) => {
           if (err) reject(err);
           else resolve(rows);
@@ -360,7 +360,7 @@ class Database {
         `SELECT p.* 
          FROM provas p 
          WHERE p.id = ? AND p.professor_id = ?`,
-        [provaId, professorId],
+        [parseInt(provaId), parseInt(professorId)],
         (err, row) => {
           if (err) reject(err);
           else resolve(row);
@@ -373,7 +373,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.run(
         'INSERT INTO prova_questoes (prova_id, questao_id, ordem) VALUES (?, ?, ?)',
-        [provaId, questaoId, ordem],
+        [parseInt(provaId), parseInt(questaoId), parseInt(ordem)],
         function(err) {
           if (err) reject(err);
           else resolve(this.lastID);
@@ -390,7 +390,7 @@ class Database {
          INNER JOIN prova_questoes pq ON q.id = pq.questao_id 
          WHERE pq.prova_id = ? 
          ORDER BY pq.ordem`,
-        [provaId],
+        [parseInt(provaId)],
         (err, rows) => {
           if (err) reject(err);
           else resolve(rows);
@@ -403,7 +403,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.get(
         'SELECT * FROM alunos WHERE id = ?',
-        [alunoId],
+        [parseInt(alunoId)],
         (err, row) => {
           if (err) reject(err);
           else resolve(row);
@@ -416,7 +416,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.get(
         'SELECT * FROM professores WHERE id = ?',
-        [professorId],
+        [parseInt(professorId)],
         (err, row) => {
           if (err) reject(err);
           else resolve(row);
@@ -455,7 +455,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.run(
         'DELETE FROM professores WHERE id = ?',
-        [professorId],
+        [parseInt(professorId)],
         function(err) {
           if (err) reject(err);
           else resolve(this.changes);
@@ -480,7 +480,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.get(
         'SELECT * FROM questoes WHERE id = ? AND professor_id = ?',
-        [questaoId, professorId],
+        [parseInt(questaoId), parseInt(professorId)],
         (err, row) => {
           if (err) reject(err);
           else resolve(row);
@@ -493,7 +493,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.run(
         'UPDATE questoes SET enunciado = ?, area = ?, opcoes = ?, resposta_correta = ?, nivel_dificuldade = ?, updated_at = datetime("now") WHERE id = ?',
-        [enunciado, area, JSON.stringify(opcoes), respostaCorreta, nivelDificuldade, questaoId],
+        [enunciado, area, JSON.stringify(opcoes), respostaCorreta, nivelDificuldade, parseInt(questaoId)],
         function(err) {
           if (err) reject(err);
           else resolve(this.changes);
@@ -506,7 +506,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.run(
         'DELETE FROM questoes WHERE id = ?',
-        [questaoId],
+        [parseInt(questaoId)],
         function(err) {
           if (err) reject(err);
           else resolve(this.changes);
@@ -520,7 +520,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.run(
         'UPDATE provas SET titulo = ?, disciplina = ?, descricao = ?, tempo_limite = ?, turma_nome = ?, imagem = ?, texto_personalizado = ?, updated_at = datetime("now") WHERE id = ?',
-        [dados.titulo, dados.disciplina, dados.descricao, dados.tempoLimite, dados.turma_nome, dados.imagem, dados.textoPersonalizado, provaId],
+        [dados.titulo, dados.disciplina, dados.descricao, dados.tempoLimite, dados.turma_nome, dados.imagem, dados.textoPersonalizado, parseInt(provaId)],
         function(err) {
           if (err) reject(err);
           else resolve(this.changes);
@@ -533,7 +533,7 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db.run(
         'DELETE FROM prova_questoes WHERE prova_id = ?',
-        [provaId],
+        [parseInt(provaId)],
         function(err) {
           if (err) reject(err);
           else resolve(this.changes);
@@ -544,15 +544,16 @@ class Database {
 
   deleteProva(provaId) {
     return new Promise((resolve, reject) => {
+      const provaIdNum = parseInt(provaId);
       // Primeiro remove as questões da prova
-      this.db.run('DELETE FROM prova_questoes WHERE prova_id = ?', [provaId], (err) => {
+      this.db.run('DELETE FROM prova_questoes WHERE prova_id = ?', [provaIdNum], (err) => {
         if (err) {
           reject(err);
           return;
         }
         
         // Depois remove a prova
-        this.db.run('DELETE FROM provas WHERE id = ?', [provaId], function(err) {
+        this.db.run('DELETE FROM provas WHERE id = ?', [provaIdNum], function(err) {
           if (err) reject(err);
           else resolve(this.changes);
         });
