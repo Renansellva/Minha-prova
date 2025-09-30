@@ -413,7 +413,7 @@ class Database {
   getProvas(professorId) {
     return new Promise((resolve, reject) => {
       this.db.all(
-        `SELECT p.*, COUNT(pq.questao_id) as total_questoes 
+        `SELECT p.*, COUNT(pq.questao_id) as total_questoes, 'ativa' as status
          FROM provas p 
          LEFT JOIN prova_questoes pq ON p.id = pq.prova_id 
          WHERE p.professor_id = ? 

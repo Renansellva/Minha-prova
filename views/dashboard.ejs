@@ -346,7 +346,7 @@
                             <h4><%= prova.titulo %></h4>
                             <p><%= prova.disciplina %> - <%= prova.turma_nome %> - <%= prova.total_questoes %> questões</p>
                         </div>
-                        <div class="prova-status <%= prova.status %>"><%= prova.status.charAt(0).toUpperCase() + prova.status.slice(1) %></div>
+                        <div class="prova-status <%= prova.status || 'ativa' %>"><%= (prova.status || 'ativa').charAt(0).toUpperCase() + (prova.status || 'ativa').slice(1) %></div>
                     </div>
                 <% }); %>
                 <div style="text-align: center; margin-top: 20px;">

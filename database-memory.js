@@ -262,7 +262,8 @@ class MemoryDatabase {
       const questoesCount = this.data.prova_questoes.filter(pq => pq.prova_id === prova.id).length;
       return {
         ...prova,
-        total_questoes: questoesCount
+        total_questoes: questoesCount,
+        status: 'ativa' // Status padrão para compatibilidade
       };
     }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
