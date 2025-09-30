@@ -318,57 +318,99 @@
         </div>
 
         <div class="prova-container">
-            <div class="prova-header">
-                <h2 class="prova-title"><%= prova.titulo %></h2>
-                <div class="prova-info">
-                    <div class="info-item">
-                        <div class="info-label">📚 Disciplina</div>
-                        <div class="info-value"><%= prova.disciplina %></div>
+            <% if (typeof templateCabecalho !== 'undefined' && templateCabecalho) { %>
+                <!-- Cabeçalho personalizado -->
+                <div class="prova-header-custom" style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                    <div class="header-custom-top" style="background: #667eea; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <span class="escola-nome-custom" style="font-size: 1.3em; font-weight: bold;"><%= templateCabecalho.escola_nome %></span>
+                        <% if (templateCabecalho.logo_path) { %>
+                            <div class="logo-custom" style="width: 60px; height: 60px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <img src="<%= templateCabecalho.logo_path %>" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                            </div>
+                        <% } else { %>
+                            <div class="logo-custom" style="width: 60px; height: 60px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2em; color: #667eea;">🏫</div>
+                        <% } %>
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">🏫 Turma</div>
-                        <div class="info-value"><%= prova.turma_nome %></div>
+                    
+                    <div class="campos-custom" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <% Object.entries(templateCabecalho.campos_personalizados).forEach(([label, value]) => { %>
+                            <div class="campo-custom" style="background: #f8f9fa; padding: 12px 15px; border-radius: 8px; border: 1px solid #e1e5e9; display: flex; justify-content: space-between; align-items: center;">
+                                <span class="campo-label-custom" style="font-weight: 600; color: #333;"><%= label %>:</span>
+                                <span class="campo-value-custom" style="color: #666; font-weight: 500;">
+                                    <% if (label.includes('Aluno') || label.includes('Estudante')) { %>
+                                        _______________
+                                    <% } else if (label.includes('Professor') || label.includes('Docente')) { %>
+                                        <%= professor.nome %>
+                                    <% } else if (label.includes('Série') || label.includes('Ano') || label.includes('Turma')) { %>
+                                        <%= prova.turma_nome %>
+                                    <% } else if (label.includes('Data')) { %>
+                                        <%= new Date().toLocaleDateString('pt-BR') %>
+                                    <% } else if (label.includes('Disciplina') || label.includes('Matéria')) { %>
+                                        <%= prova.disciplina %>
+                                    <% } else if (label.includes('Nota') || label.includes('Pontuação')) { %>
+                                        <%= questoes.length %> pontos
+                                    <% } else { %>
+                                        ___________
+                                    <% } %>
+                                </span>
+                            </div>
+                        <% }); %>
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">❓ Questões</div>
-                        <div class="info-value"><%= questoes.length %></div>
+                </div>
+            <% } else { %>
+                <!-- Cabeçalho padrão (fallback) -->
+                <div class="prova-header">
+                    <h2 class="prova-title"><%= prova.titulo %></h2>
+                    <div class="prova-info">
+                        <div class="info-item">
+                            <div class="info-label">📚 Disciplina</div>
+                            <div class="info-value"><%= prova.disciplina %></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">🏫 Turma</div>
+                            <div class="info-value"><%= prova.turma_nome %></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">❓ Questões</div>
+                            <div class="info-value"><%= questoes.length %></div>
+                        </div>
+                        <% if (prova.tempo_limite) { %>
+                        <div class="info-item">
+                            <div class="info-label">⏱️ Tempo</div>
+                            <div class="info-value"><%= prova.tempo_limite %> min</div>
+                        </div>
+                        <% } %>
                     </div>
-                    <% if (prova.tempo_limite) { %>
-                    <div class="info-item">
-                        <div class="info-label">⏱️ Tempo</div>
-                        <div class="info-value"><%= prova.tempo_limite %> min</div>
+                    <% if (prova.descricao) { %>
+                    <p style="color: #666; font-style: italic;"><%= prova.descricao %></p>
+                    <% } %>
+
+                    <% if (prova.imagem) { %>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="<%= prova.imagem %>" alt="Imagem da Prova" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 2px solid #e1e5e9;">
+                    </div>
+                    <% } %>
+
+                    <% if (prova.texto_personalizado) { %>
+                    <div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+                        <h4 style="margin: 0 0 10px 0; color: #333;">📝 Instruções Especiais</h4>
+                        <p style="margin: 0; color: #555; white-space: pre-line;"><%= prova.texto_personalizado %></p>
                     </div>
                     <% } %>
                 </div>
-                <% if (prova.descricao) { %>
-                <p style="color: #666; font-style: italic;"><%= prova.descricao %></p>
-                <% } %>
-
-                <% if (prova.imagem) { %>
-                <div style="text-align: center; margin: 20px 0;">
-                    <img src="<%= prova.imagem %>" alt="Imagem da Prova" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 2px solid #e1e5e9;">
-                </div>
-                <% } %>
-
-                <% if (prova.texto_personalizado) { %>
-                <div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-                    <h4 style="margin: 0 0 10px 0; color: #333;">📝 Instruções Especiais</h4>
-                    <p style="margin: 0; color: #555; white-space: pre-line;"><%= prova.texto_personalizado %></p>
-                </div>
-                <% } %>
-                
-                <!-- QR Code único da prova -->
-                <div style="text-align: center; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 2px solid #e1e5e9;">
-                    <h4 style="margin: 0 0 15px 0; color: #333;">📱 Código QR da Prova</h4>
-                    <div id="qr-prova" class="qr-placeholder">
-                        <div style="width: 150px; height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 auto;">
-                            📱 QR Code
-                        </div>
+            <% } %>
+            
+            <!-- QR Code único da prova -->
+            <div style="text-align: center; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 2px solid #e1e5e9;">
+                <h4 style="margin: 0 0 15px 0; color: #333;">📱 Código QR da Prova</h4>
+                <div id="qr-prova" class="qr-placeholder">
+                    <div style="width: 150px; height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 auto;">
+                        📱 QR Code
                     </div>
-                    <p style="margin: 10px 0 0 0; color: #666; font-size: 0.9em;">
-                        Este código contém todas as questões da prova
-                    </p>
                 </div>
+                <p style="margin: 10px 0 0 0; color: #666; font-size: 0.9em;">
+                    Este código contém todas as questões da prova
+                </p>
             </div>
 
             <div class="questoes">
@@ -383,21 +425,32 @@
                             <%= questao.enunciado %>
                         </div>
                         
-                        <ul class="opcoes">
-                            <% JSON.parse(questao.opcoes).forEach((opcao, opcaoIndex) => { %>
-                                <li class="opcao <%= opcaoIndex === questao.resposta_correta ? 'correta' : '' %>">
-                                    <%= String.fromCharCode(65 + opcaoIndex) %>) <%= opcao %>
-                                    <% if (opcaoIndex === questao.resposta_correta) { %>
-                                        ✓
-                                    <% } %>
-                                </li>
-                            <% }); %>
-                        </ul>
+                        <% if (questao.tipo_questao === 'questao_aberta') { %>
+                            <div style="background: #f8f9fa; border: 2px dashed #e1e5e9; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                                <p style="margin: 0; color: #666; font-style: italic;">📝 Espaço para resposta do aluno</p>
+                                <% if (questao.opcoes && JSON.parse(questao.opcoes)[0] && JSON.parse(questao.opcoes)[0] !== 'Resposta aberta') { %>
+                                    <div style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 5px; border-left: 4px solid #28a745;">
+                                        <strong>Resposta de referência:</strong><br>
+                                        <%= JSON.parse(questao.opcoes)[0] %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } else { %>
+                            <ul class="opcoes">
+                                <% JSON.parse(questao.opcoes).forEach((opcao, opcaoIndex) => { %>
+                                    <li class="opcao <%= opcaoIndex === questao.resposta_correta ? 'correta' : '' %>">
+                                        <%= String.fromCharCode(65 + opcaoIndex) %>) <%= opcao %>
+                                        <% if (opcaoIndex === questao.resposta_correta) { %>
+                                            ✓
+                                        <% } %>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        <% } %>
                         
                         <div class="questao-info">
                             <p><strong>ID:</strong> <%= questao.id %></p>
                             <p><strong>Área:</strong> <%= questao.area %></p>
-                            <p><strong>Nível:</strong> <%= questao.nivel_dificuldade %></p>
                         </div>
                     </div>
                 <% }); %>

@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Template de Cabeçalho - Minha Prova</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .breadcrumb-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb-separator {
+            margin: 0 10px;
+            color: #666;
+        }
+
+        .breadcrumb-current {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-size: 2em;
+            color: #333;
+            margin: 0 0 20px 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .file-upload {
+            border: 2px dashed #e1e5e9;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            transition: border-color 0.3s;
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+        }
+
+        .file-upload.dragover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-icon {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-text {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-hint {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .logo-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .logo-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            border: 2px solid #e1e5e9;
+        }
+
+        .campos-container {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .campos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .campos-header h4 {
+            margin: 0;
+            color: #333;
+        }
+
+        .campo-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .campo-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .campo-label {
+            min-width: 120px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-remove-campo {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-remove-campo:hover {
+            background: #c82333;
+        }
+
+        .btn-add-campo {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .btn-add-campo:hover {
+            background: #218838;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 1em;
+            transition: transform 0.2s;
+            margin: 0 5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .preview-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-section h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+
+        .header-preview {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-preview-text {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .header-preview-logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .campos-preview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .campo-preview {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #e1e5e9;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">📚 Minha Prova</div>
+            <div>
+                <span>👋 Olá, <%= professor.nome %></span>
+                <a href="/logout" style="color: #dc3545; text-decoration: none; margin-left: 15px;">Sair</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="breadcrumb">
+                <a href="/dashboard" class="breadcrumb-link">🏠 Dashboard</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="/templates-cabecalho" class="breadcrumb-link">📋 Templates</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current">✏️ Editar Template</span>
+            </div>
+            <h1 class="page-title">✏️ Editar Template de Cabeçalho</h1>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="/templates-cabecalho" class="btn btn-secondary">← Voltar</a>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form id="editar-template-form" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nome">Nome do Template:</label>
+                        <input type="text" id="nome" name="nome" required placeholder="Ex: Colégio Imaculada Conceição" value="<%= template.nome %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="escola_nome">Nome da Escola:</label>
+                        <input type="text" id="escola_nome" name="escola_nome" required placeholder="Ex: COLÉGIO IMACULADA CONCEIÇÃO - CIC" value="<%= template.escola_nome %>">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Logo da Escola:</label>
+                    <div class="file-upload" onclick="document.getElementById('logo').click()">
+                        <div class="file-upload-icon">📷</div>
+                        <div class="file-upload-text">Clique para selecionar ou arraste uma nova imagem</div>
+                        <div class="file-upload-hint">PNG, JPG ou GIF (máx. 2MB)</div>
+                        <input type="file" id="logo" name="logo" accept="image/*">
+                    </div>
+                    <div class="logo-preview" id="logo-preview">
+                        <% if (template.logo_path) { %>
+                            <img src="<%= template.logo_path %>" alt="Logo atual">
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Campos Personalizados:</label>
+                    <div class="campos-container">
+                        <div class="campos-header">
+                            <h4>📝 Campos do Cabeçalho</h4>
+                            <small style="color: #666;">Adicione campos que aparecerão no cabeçalho da prova</small>
+                        </div>
+                        <div id="campos-container">
+                            <!-- Campos serão preenchidos dinamicamente -->
+                        </div>
+                        <button type="button" class="btn-add-campo" onclick="adicionarCampo()">➕ Adicionar Campo</button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="cancelarEdicao()">❌ Cancelar</button>
+                    <button type="submit" class="btn btn-primary">✅ Salvar Alterações</button>
+                </div>
+            </form>
+
+            <div class="preview-section">
+                <h4>👁️ Pré-visualização</h4>
+                <div class="header-preview">
+                    <span class="header-preview-text" id="preview-escola"><%= template.escola_nome %></span>
+                    <div class="header-preview-logo" id="preview-logo">
+                        <% if (template.logo_path) { %>
+                            <img src="<%= template.logo_path %>" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 3px;">
+                        <% } else { %>
+                            🏫
+                        <% } %>
+                    </div>
+                </div>
+                <div class="campos-preview" id="preview-campos">
+                    <!-- Campos serão inseridos aqui dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let campoCount = 0;
+        const camposOriginais = <%- JSON.stringify(template.campos_personalizados) %>;
+
+        // Carregar campos existentes
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('campos-container');
+            
+            // Adicionar campos padrão primeiro
+            const camposPadrao = [
+                { label: 'Aluno(a):', value: 'Aluno(a):' },
+                { label: 'Professor(a):', value: 'Professor(a):' },
+                { label: 'Série:', value: 'Série:' },
+                { label: 'Data:', value: 'Data:' },
+                { label: 'Disciplina:', value: 'Disciplina:' },
+                { label: 'Nota:', value: 'Nota:' }
+            ];
+
+            camposPadrao.forEach(campo => {
+                adicionarCampoComValor(campo.label, campo.value, false);
+            });
+
+            // Adicionar campos personalizados
+            Object.entries(camposOriginais).forEach(([label, value]) => {
+                // Verificar se não é um campo padrão
+                if (!camposPadrao.some(c => c.value === value)) {
+                    adicionarCampoComValor(label, value, false);
+                }
+            });
+
+            atualizarPreview();
+        });
+
+        // Preview do logo
+        document.getElementById('logo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('logo-preview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview do logo">`;
+                    document.getElementById('preview-logo').innerHTML = `<img src="${e.target.result}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 3px;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Preview em tempo real
+        document.getElementById('escola_nome').addEventListener('input', function() {
+            document.getElementById('preview-escola').textContent = this.value || 'Nome da Escola';
+        });
+
+        function adicionarCampoComValor(label, value, isReadonly = false) {
+            const container = document.getElementById('campos-container');
+            const novoCampo = document.createElement('div');
+            novoCampo.className = 'campo-item';
+            novoCampo.innerHTML = `
+                <span class="campo-label">${label}:</span>
+                <input type="text" class="campo-input" placeholder="Nome do campo" value="${value}">
+                <button type="button" class="btn-remove-campo" onclick="removerCampo(this)" ${isReadonly ? 'disabled' : ''}>🗑️</button>
+            `;
+            container.appendChild(novoCampo);
+            campoCount++;
+        }
+
+        function adicionarCampo() {
+            const container = document.getElementById('campos-container');
+            const novoCampo = document.createElement('div');
+            novoCampo.className = 'campo-item';
+            novoCampo.innerHTML = `
+                <span class="campo-label">Campo ${campoCount + 1}:</span>
+                <input type="text" class="campo-input" placeholder="Nome do campo" value="">
+                <button type="button" class="btn-remove-campo" onclick="removerCampo(this)">🗑️</button>
+            `;
+            container.appendChild(novoCampo);
+            campoCount++;
+            atualizarPreview();
+        }
+
+        function removerCampo(button) {
+            const campoItem = button.parentElement;
+            campoItem.remove();
+            atualizarPreview();
+        }
+
+        function atualizarPreview() {
+            const campos = document.querySelectorAll('.campo-item .campo-input');
+            const previewContainer = document.getElementById('preview-campos');
+            previewContainer.innerHTML = '';
+
+            campos.forEach(campo => {
+                if (campo.value.trim()) {
+                    const campoPreview = document.createElement('div');
+                    campoPreview.className = 'campo-preview';
+                    campoPreview.textContent = `${campo.value}: _________________`;
+                    previewContainer.appendChild(campoPreview);
+                }
+            });
+        }
+
+        // Atualizar preview quando campos mudarem
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('campo-input')) {
+                atualizarPreview();
+            }
+        });
+
+        // Drag and drop para logo
+        const fileUpload = document.querySelector('.file-upload');
+        
+        fileUpload.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        fileUpload.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        fileUpload.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('logo').files = files;
+                document.getElementById('logo').dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Enviar formulário
+        document.getElementById('editar-template-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('nome', document.getElementById('nome').value);
+            formData.append('escola_nome', document.getElementById('escola_nome').value);
+            
+            const logoFile = document.getElementById('logo').files[0];
+            if (logoFile) {
+                formData.append('logo', logoFile);
+            }
+            
+            // Coletar campos personalizados
+            const campos = {};
+            document.querySelectorAll('.campo-item .campo-input').forEach(campo => {
+                if (campo.value.trim()) {
+                    const label = campo.parentElement.querySelector('.campo-label').textContent.replace(':', '');
+                    campos[label] = campo.value.trim();
+                }
+            });
+            formData.append('campos_personalizados', JSON.stringify(campos));
+            
+            try {
+                const response = await fetch('/templates-cabecalho/<%= template.id %>/editar', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Template atualizado com sucesso!');
+                    window.location.href = '/templates-cabecalho';
+                } else {
+                    alert('Erro ao atualizar template: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar template. Tente novamente.');
+            }
+        });
+
+        function cancelarEdicao() {
+            if (confirm('Tem certeza que deseja cancelar? As alterações serão perdidas.')) {
+                window.location.href = '/templates-cabecalho';
+            }
+        }
+    </script>
+</body>
+</html>

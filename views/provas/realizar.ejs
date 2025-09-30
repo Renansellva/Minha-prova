@@ -187,32 +187,7 @@
             color: #333;
         }
 
-        .qr-code-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 25px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border: 1px solid #e1e5e9;
-        }
 
-        .qr-code {
-            max-width: 100px;
-            max-height: 100px;
-        }
-
-        .questao-info {
-            margin-left: 20px;
-            text-align: center;
-        }
-
-        .questao-info p {
-            margin: 5px 0;
-            font-size: 0.9em;
-            color: #666;
-        }
 
         .prova-actions {
             background: white;
@@ -276,6 +251,69 @@
             margin-bottom: 20px;
         }
 
+        /* Estilos para cabeçalho personalizado */
+        .prova-header-custom {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .header-custom-top {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .escola-nome-custom {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .logo-custom {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .campos-custom {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .campo-custom {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .campo-label-custom {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .campo-value-custom {
+            color: #666;
+            font-weight: 500;
+        }
+
         @media print {
             .header, .prova-actions {
                 display: none;
@@ -291,79 +329,94 @@
                 border: 1px solid #ccc;
             }
         }
+
+        @media (max-width: 768px) {
+            .campos-custom {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-custom-top {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">📚 Minha Prova</div>
-            <div class="timer" id="timer">
-                ⏱️ <span id="time-display">00:00</span>
-            </div>
-        </div>
-    </div>
 
     <div class="container">
-        <div class="prova-header">
-            <h1 class="prova-title">📝 <%= prova.titulo %></h1>
-            
-            <div class="aluno-info">
-                <div class="info-item">
-                    <div class="info-label">👤 Aluno</div>
-                    <div class="info-value"><%= aluno.nome %></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">🏫 Turma</div>
-                    <div class="info-value"><%= prova.turma_nome %></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">📚 Disciplina</div>
-                    <div class="info-value"><%= prova.disciplina %></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">❓ Questões</div>
-                    <div class="info-value"><%= questoes.length %></div>
-                </div>
-            </div>
-
-            <div class="progress-text">
-                <strong>Progresso:</strong> <span id="progress-text">0 de <%= questoes.length %> questões respondidas</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
-            </div>
-
-                <!-- QR Code único da prova -->
-                <div style="text-align: center; margin: 20px 0; padding: 15px; background: #e3f2fd; border-radius: 10px; border: 2px solid #2196f3;">
-                    <h4 style="margin: 0 0 10px 0; color: #1976d2;">📱 Código QR da Prova</h4>
-                    <div id="qr-prova" class="qr-placeholder">
-                        <div style="width: 120px; height: 120px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 auto;">
-                            📱 QR
+        <% if (templateCabecalho) { %>
+            <!-- Cabeçalho personalizado -->
+            <div class="prova-header-custom">
+                <div class="header-custom-top">
+                    <span class="escola-nome-custom"><%= templateCabecalho.escola_nome %></span>
+                    <% if (templateCabecalho.logo_path) { %>
+                        <div class="logo-custom">
+                            <img src="<%= templateCabecalho.logo_path %>" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
+                    <% } else { %>
+                        <div class="logo-custom">🏫</div>
+                    <% } %>
+                </div>
+                
+                <div class="campos-custom">
+                    <% Object.entries(templateCabecalho.campos_personalizados).forEach(([label, value]) => { %>
+                        <div class="campo-custom">
+                            <span class="campo-label-custom"><%= label %></span>
+                            <span class="campo-value-custom">
+                                <% if (label.includes('Aluno') || label.includes('Estudante')) { %>
+                                    <%= aluno.nome %>
+                                <% } else if (label.includes('Professor') || label.includes('Docente')) { %>
+                                    <%= professor.nome %>
+                                <% } else if (label.includes('Série') || label.includes('Ano') || label.includes('Turma')) { %>
+                                    <%= prova.turma_nome %>
+                                <% } else if (label.includes('Data')) { %>
+                                    <%= new Date().toLocaleDateString('pt-BR') %>
+                                <% } else if (label.includes('Disciplina') || label.includes('Matéria')) { %>
+                                    <%= prova.disciplina %>
+                                <% } else if (label.includes('Nota') || label.includes('Pontuação')) { %>
+                                    <%= questoes.length %> pontos
+                                <% } else { %>
+                                    ___________
+                                <% } %>
+                            </span>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        <% } else { %>
+            <!-- Cabeçalho padrão (fallback) -->
+            <div class="prova-header">
+                <h1 class="prova-title">📝 <%= prova.titulo %></h1>
+                
+                <div class="aluno-info">
+                    <div class="info-item">
+                        <div class="info-label">👤 Aluno</div>
+                        <div class="info-value"><%= aluno.nome %></div>
                     </div>
-                    <p style="margin: 8px 0 0 0; color: #1976d2; font-size: 0.9em;">
-                        Este código identifica toda a prova
-                    </p>
+                    <div class="info-item">
+                        <div class="info-label">🏫 Turma</div>
+                        <div class="info-value"><%= prova.turma_nome %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">📚 Disciplina</div>
+                        <div class="info-value"><%= prova.disciplina %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">❓ Questões</div>
+                        <div class="info-value"><%= questoes.length %></div>
+                    </div>
                 </div>
+            </div>
+        <% } %>
 
-                <div class="instrucoes">
-                    <h4>📋 Instruções:</h4>
-                    <ul>
-                        <li>Leia cada questão com atenção antes de responder</li>
-                        <li>Marque apenas uma alternativa por questão</li>
-                        <li>Use caneta azul ou preta</li>
-                        <li>O QR Code acima identifica toda a prova</li>
-                        <li>Revise suas respostas antes de finalizar</li>
-                    </ul>
-                </div>
-        </div>
 
         <form id="prova-form">
             <% questoes.forEach((questao, index) => { %>
                 <div class="questao" data-questao="<%= questao.id %>">
                     <div class="questao-header">
                         <span class="questao-numero">Questão <%= index + 1 %></span>
-                        <span class="questao-area"><%= questao.area %></span>
                     </div>
                     
                     <div class="questao-enunciado">
@@ -381,187 +434,11 @@
                         <% }); %>
                     </ul>
                     
-                    <div class="questao-info">
-                        <p><strong>ID:</strong> <%= questao.id %></p>
-                        <p><strong>Área:</strong> <%= questao.area %></p>
-                    </div>
                 </div>
             <% }); %>
         </form>
 
-        <div class="prova-actions">
-            <h3>Finalizar Prova</h3>
-            <p>Revise suas respostas antes de finalizar. Esta ação não pode ser desfeita.</p>
-            <button type="button" class="btn btn-secondary" onclick="salvarRascunho()">💾 Salvar Rascunho</button>
-            <button type="button" class="btn btn-success" onclick="finalizarProva()">✅ Finalizar Prova</button>
-        </div>
     </div>
 
-    <script>
-        let tempoRestante = <%= prova.tempo_limite ? prova.tempo_limite * 60 : 0 %>;
-        let timerInterval;
-        let respostas = {};
-
-        // Inicializar timer se houver tempo limite
-        if (tempoRestante > 0) {
-            iniciarTimer();
-        }
-
-        function iniciarTimer() {
-            timerInterval = setInterval(() => {
-                tempoRestante--;
-                atualizarDisplayTimer();
-                
-                if (tempoRestante <= 0) {
-                    clearInterval(timerInterval);
-                    finalizarProva();
-                }
-            }, 1000);
-        }
-
-        function atualizarDisplayTimer() {
-            const horas = Math.floor(tempoRestante / 3600);
-            const minutos = Math.floor((tempoRestante % 3600) / 60);
-            const segundos = tempoRestante % 60;
-            
-            const display = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-            document.getElementById('time-display').textContent = display;
-            
-            // Mudar cor quando restam menos de 5 minutos
-            if (tempoRestante <= 300) {
-                document.getElementById('timer').style.background = '#dc3545';
-            }
-        }
-
-        // Gerar QR code único para toda a prova
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                const response = await fetch('/api/gerar-qr', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        data: `PROVA: <%= prova.titulo %> | <%= prova.disciplina %> | <%= prova.turma_nome %> | Aluno: <%= aluno.nome %> | <%= questoes.length %> questões`
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    document.getElementById('qr-prova').innerHTML = 
-                        `<img src="${result.qrCode}" alt="QR Code da Prova" style="max-width: 120px; max-height: 120px; border-radius: 8px;">`;
-                }
-            } catch (error) {
-                console.error('Erro ao gerar QR code da prova:', error);
-            }
-        });
-
-        // Adicionar funcionalidade de seleção de opções
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const questaoId = this.name.split('-')[1];
-                const opcaoIndex = parseInt(this.value);
-                
-                // Marcar opção como selecionada
-                const opcao = this.closest('.opcao');
-                const questao = opcao.closest('.questao');
-                
-                // Remover seleção anterior
-                questao.querySelectorAll('.opcao').forEach(o => o.classList.remove('selected'));
-                
-                // Marcar nova seleção
-                opcao.classList.add('selected');
-                
-                // Salvar resposta
-                respostas[questaoId] = opcaoIndex;
-                
-                // Atualizar progresso
-                atualizarProgresso();
-            });
-        });
-
-        function atualizarProgresso() {
-            const totalQuestoes = <%= questoes.length %>;
-            const respondidas = Object.keys(respostas).length;
-            const porcentagem = (respondidas / totalQuestoes) * 100;
-            
-            document.getElementById('progress-fill').style.width = porcentagem + '%';
-            document.getElementById('progress-text').textContent = `${respondidas} de ${totalQuestoes} questões respondidas`;
-        }
-
-        function salvarRascunho() {
-            // Salvar respostas no localStorage
-            localStorage.setItem('prova_<%= prova.id %>_<%= aluno.id %>', JSON.stringify(respostas));
-            alert('Rascunho salvo com sucesso!');
-        }
-
-        function finalizarProva() {
-            const totalQuestoes = <%= questoes.length %>;
-            const respondidas = Object.keys(respostas).length;
-            
-            if (respondidas < totalQuestoes) {
-                if (!confirm(`Você respondeu apenas ${respondidas} de ${totalQuestoes} questões. Deseja finalizar mesmo assim?`)) {
-                    return;
-                }
-            }
-            
-            // Enviar respostas
-            enviarRespostas();
-        }
-
-        async function enviarRespostas() {
-            try {
-                const dados = {
-                    provaId: <%= prova.id %>,
-                    alunoId: <%= aluno.id %>,
-                    respostas: respostas,
-                    tempoGasto: <%= prova.tempo_limite ? prova.tempo_limite * 60 : 0 %> - tempoRestante
-                };
-                
-                // Simular envio (em um sistema real, enviaria para o servidor)
-                console.log('Enviando respostas:', dados);
-                
-                alert('Prova finalizada com sucesso! Suas respostas foram enviadas.');
-                
-                // Limpar localStorage
-                localStorage.removeItem('prova_<%= prova.id %>_<%= aluno.id %>');
-                
-                // Redirecionar ou mostrar resultado
-                window.close();
-                
-            } catch (error) {
-                console.error('Erro ao enviar respostas:', error);
-                alert('Erro ao finalizar prova. Tente novamente.');
-            }
-        }
-
-        // Carregar rascunho salvo
-        window.addEventListener('load', function() {
-            const rascunho = localStorage.getItem('prova_<%= prova.id %>_<%= aluno.id %>');
-            if (rascunho) {
-                respostas = JSON.parse(rascunho);
-                
-                // Restaurar seleções
-                Object.keys(respostas).forEach(questaoId => {
-                    const radio = document.querySelector(`input[name="questao-${questaoId}"][value="${respostas[questaoId]}"]`);
-                    if (radio) {
-                        radio.checked = true;
-                        radio.dispatchEvent(new Event('change'));
-                    }
-                });
-                
-                atualizarProgresso();
-            }
-        });
-
-        // Avisar antes de sair se houver respostas não salvas
-        window.addEventListener('beforeunload', function(e) {
-            if (Object.keys(respostas).length > 0) {
-                e.preventDefault();
-                e.returnValue = 'Você tem respostas não salvas. Deseja realmente sair?';
-            }
-        });
-    </script>
 </body>
 </html>

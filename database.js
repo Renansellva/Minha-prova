@@ -121,6 +121,21 @@ class Database {
         FOREIGN KEY (questao_id) REFERENCES questoes (id)
       )
     `);
+
+    // Tabela de templates de cabeçalho
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS header_templates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        escola_nome TEXT NOT NULL,
+        logo_path TEXT,
+        campos_personalizados TEXT,
+        professor_id INTEGER,
+        ativo BOOLEAN DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (professor_id) REFERENCES professores (id)
+      )
+    `);
   }
 
   runMigrations() {
@@ -165,6 +180,38 @@ class Database {
         console.error('Erro na migração texto_personalizado:', err);
       } else {
         console.log('✅ Migração: Coluna texto_personalizado adicionada ou já existe');
+      }
+    });
+
+    // Migração: Adicionar coluna tipo_questao se não existir
+    this.db.run(`
+      ALTER TABLE questoes ADD COLUMN tipo_questao TEXT DEFAULT 'multipla_escolha'
+    `, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.error('Erro na migração tipo_questao:', err);
+      } else {
+        console.log('✅ Migração: Coluna tipo_questao adicionada ou já existe');
+      }
+    });
+
+    // Migração: Criar tabela header_templates se não existir
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS header_templates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        escola_nome TEXT NOT NULL,
+        logo_path TEXT,
+        campos_personalizados TEXT,
+        professor_id INTEGER,
+        ativo BOOLEAN DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (professor_id) REFERENCES professores (id)
+      )
+    `, (err) => {
+      if (err) {
+        console.error('Erro na migração header_templates:', err);
+      } else {
+        console.log('✅ Migração: Tabela header_templates criada ou já existe');
       }
     });
   }
@@ -234,6 +281,33 @@ class Database {
             VALUES (?, ?, ?, ?, ?, ?)
           `, questao);
         });
+
+        // Inserir template de cabeçalho de exemplo
+        const templatePadrao = {
+          nome: 'Colégio Imaculada Conceição',
+          escola_nome: 'COLÉGIO IMACULADA CONCEIÇÃO - CIC',
+          logo_path: null,
+          campos_personalizados: {
+            'Aluno(a)': 'Aluno(a):',
+            'Professor(a)': 'Professor(a):',
+            'Série': 'Série:',
+            'Data': 'Data:',
+            'Disciplina': 'Disciplina:',
+            'Nota': 'Nota:'
+          },
+          professor_id: 1
+        };
+
+        this.db.run(`
+          INSERT INTO header_templates (nome, escola_nome, logo_path, campos_personalizados, professor_id) 
+          VALUES (?, ?, ?, ?, ?)
+        `, [
+          templatePadrao.nome,
+          templatePadrao.escola_nome,
+          templatePadrao.logo_path,
+          JSON.stringify(templatePadrao.campos_personalizados),
+          templatePadrao.professor_id
+        ]);
       }
     });
   }
@@ -312,8 +386,8 @@ class Database {
   addQuestao(questao) {
     return new Promise((resolve, reject) => {
       this.db.run(
-        'INSERT INTO questoes (enunciado, opcoes, resposta_correta, area, nivel_dificuldade, professor_id) VALUES (?, ?, ?, ?, ?, ?)',
-        [questao.enunciado, JSON.stringify(questao.opcoes), questao.respostaCorreta, questao.area, questao.nivelDificuldade, questao.professorId],
+        'INSERT INTO questoes (enunciado, opcoes, resposta_correta, area, nivel_dificuldade, professor_id, tipo_questao) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [questao.enunciado, JSON.stringify(questao.opcoes), questao.respostaCorreta, questao.area, questao.nivelDificuldade, questao.professorId, questao.tipo_questao || 'multipla_escolha'],
         function(err) {
           if (err) reject(err);
           else resolve(this.lastID);
@@ -558,6 +632,86 @@ class Database {
           else resolve(this.changes);
         });
       });
+    });
+  }
+
+  // Métodos para templates de cabeçalho
+  addHeaderTemplate(template) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'INSERT INTO header_templates (nome, escola_nome, logo_path, campos_personalizados, professor_id) VALUES (?, ?, ?, ?, ?)',
+        [template.nome, template.escola_nome, template.logo_path, JSON.stringify(template.campos_personalizados), template.professor_id],
+        function(err) {
+          if (err) reject(err);
+          else resolve(this.lastID);
+        }
+      );
+    });
+  }
+
+  getHeaderTemplates(professorId) {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        'SELECT * FROM header_templates WHERE professor_id = ? AND ativo = 1 ORDER BY created_at DESC',
+        [parseInt(professorId)],
+        (err, rows) => {
+          if (err) reject(err);
+          else {
+            // Parse JSON campos_personalizados
+            const templates = rows.map(row => ({
+              ...row,
+              campos_personalizados: JSON.parse(row.campos_personalizados || '{}')
+            }));
+            resolve(templates);
+          }
+        }
+      );
+    });
+  }
+
+  getHeaderTemplateById(templateId, professorId) {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        'SELECT * FROM header_templates WHERE id = ? AND professor_id = ? AND ativo = 1',
+        [parseInt(templateId), parseInt(professorId)],
+        (err, row) => {
+          if (err) reject(err);
+          else if (row) {
+            resolve({
+              ...row,
+              campos_personalizados: JSON.parse(row.campos_personalizados || '{}')
+            });
+          } else {
+            resolve(null);
+          }
+        }
+      );
+    });
+  }
+
+  updateHeaderTemplate(templateId, template) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE header_templates SET nome = ?, escola_nome = ?, logo_path = ?, campos_personalizados = ? WHERE id = ?',
+        [template.nome, template.escola_nome, template.logo_path, JSON.stringify(template.campos_personalizados), parseInt(templateId)],
+        function(err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  }
+
+  deleteHeaderTemplate(templateId, professorId) {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE header_templates SET ativo = 0 WHERE id = ? AND professor_id = ?',
+        [parseInt(templateId), parseInt(professorId)],
+        function(err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
     });
   }
 

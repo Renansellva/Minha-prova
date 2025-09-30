@@ -402,28 +402,48 @@
         <% if (questoes && questoes.length > 0) { %>
             <div class="questoes-grid">
                 <% questoes.forEach(questao => { %>
-                    <div class="questao-card" data-area="<%= questao.area %>" data-dificuldade="<%= questao.nivel_dificuldade %>">
+                    <div class="questao-card" data-area="<%= questao.area %>">
                         <div class="questao-enunciado">
                             <%= questao.enunciado %>
                         </div>
                         
                         <div class="questao-info">
+                            <div>
+                                <span><strong>Área:</strong> <%= questao.area %></span>
+                                <span class="questao-tipo" style="background: <%= questao.tipo_questao === 'questao_aberta' ? '#ffc107' : '#17a2b8' %>; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; margin-left: 5px;">
+                                    <%= questao.tipo_questao === 'questao_aberta' ? 'Aberta' : 'Múltipla' %>
+                                </span>
+                            </div>
                             <span><strong>Criada:</strong> <%= new Date(questao.created_at).toLocaleDateString('pt-BR') %></span>
                         </div>
                         
-                        <div class="questao-opcoes">
-                            <h5>Opções de Resposta:</h5>
-                            <ul class="opcoes-list">
-                                <% JSON.parse(questao.opcoes).forEach((opcao, index) => { %>
-                                    <li class="<%= index === questao.resposta_correta ? 'correta' : '' %>">
-                                        <%= String.fromCharCode(65 + index) %>) <%= opcao %>
-                                        <% if (index === questao.resposta_correta) { %>
-                                            ✓
-                                        <% } %>
-                                    </li>
-                                <% }); %>
-                            </ul>
-                        </div>
+                        <% if (questao.tipo_questao === 'questao_aberta') { %>
+                            <div class="questao-opcoes">
+                                <h5>Tipo: Questão Aberta</h5>
+                                <% if (questao.opcoes && JSON.parse(questao.opcoes)[0] && JSON.parse(questao.opcoes)[0] !== 'Resposta aberta') { %>
+                                    <div style="background: #e8f5e8; padding: 10px; border-radius: 5px; border-left: 4px solid #28a745;">
+                                        <strong>Resposta de referência:</strong><br>
+                                        <%= JSON.parse(questao.opcoes)[0] %>
+                                    </div>
+                                <% } else { %>
+                                    <p style="color: #666; font-style: italic;">Sem resposta de referência definida</p>
+                                <% } %>
+                            </div>
+                        <% } else { %>
+                            <div class="questao-opcoes">
+                                <h5>Opções de Resposta:</h5>
+                                <ul class="opcoes-list">
+                                    <% JSON.parse(questao.opcoes).forEach((opcao, index) => { %>
+                                        <li class="<%= index === questao.resposta_correta ? 'correta' : '' %>">
+                                            <%= String.fromCharCode(65 + index) %>) <%= opcao %>
+                                            <% if (index === questao.resposta_correta) { %>
+                                                ✓
+                                            <% } %>
+                                        </li>
+                                    <% }); %>
+                                </ul>
+                            </div>
+                        <% } %>
                         
                         <div class="questao-actions">
                             <button class="btn btn-info" onclick="visualizarQuestao(<%= questao.id %>)">👁️ Visualizar</button>

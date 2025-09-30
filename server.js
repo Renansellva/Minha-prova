@@ -4,7 +4,8 @@ const QRCode = require('qrcode');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
 const { v4: uuidv4 } = require('uuid');
-const fs = require('fs').promises;
+const fs = require('fs');
+const fsPromises = fs.promises;
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const Database = require('./database');
@@ -69,7 +70,7 @@ const upload = multer({
 // Criar diretório uploads se não existir
 const createUploadsDir = async () => {
   try {
-    await fs.mkdir('uploads', { recursive: true });
+    await fsPromises.mkdir('uploads', { recursive: true });
   } catch (error) {
     console.error('Erro ao criar diretório uploads:', error);
   }
@@ -304,18 +305,8 @@ app.get('/provas', requireAuth, async (req, res) => {
 
 // Nova prova
 app.get('/provas/nova', requireAuth, async (req, res) => {
-  try {
-    const professorId = req.session.professorId;
-    const questoes = await db.getQuestoes(professorId);
-    
-    res.render('provas/nova', {
-      professor: { nome: req.session.professorNome },
-      questoes
-    });
-  } catch (error) {
-    console.error('Erro ao carregar nova prova:', error);
-    res.status(500).send('Erro interno do servidor');
-  }
+  // Redirecionar para o novo sistema de criação de provas
+  res.redirect('/templates-cabecalho/novo');
 });
 
 // Criar nova prova
@@ -342,6 +333,33 @@ const provaImageUpload = multer({
       cb(null, true);
     } else {
       cb(new Error('Apenas arquivos de imagem são permitidos!'), false);
+    }
+  }
+});
+
+// Configuração do Multer para upload de logos de escola
+const logoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = 'public/uploads/logos/';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = uuidv4() + '_' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
+const logoUpload = multer({
+  storage: logoStorage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos de imagem são permitidos para logos!'), false);
     }
   }
 });
@@ -382,9 +400,17 @@ app.post('/api/provas', requireAuth, provaImageUpload.single('imagem'), async (r
     
     // Adicionar questões à prova
     if (questoesArray && questoesArray.length > 0) {
+      console.log(`Adicionando ${questoesArray.length} questões à prova ${provaId}:`, questoesArray);
       for (let i = 0; i < questoesArray.length; i++) {
-        await db.addQuestaoProva(provaId, questoesArray[i], i + 1);
+        try {
+          await db.addQuestaoProva(provaId, questoesArray[i], i + 1);
+          console.log(`Questão ${questoesArray[i]} adicionada à prova ${provaId} na posição ${i + 1}`);
+        } catch (error) {
+          console.error(`Erro ao adicionar questão ${questoesArray[i]} à prova ${provaId}:`, error);
+        }
       }
+    } else {
+      console.log('Nenhuma questão foi fornecida para a prova:', provaId);
     }
     
     res.json({ success: true, message: 'Prova criada com sucesso!', provaId });
@@ -429,7 +455,7 @@ app.get('/questoes/nova', requireAuth, (req, res) => {
 // Criar nova questão
 app.post('/api/questoes', requireAuth, async (req, res) => {
   try {
-    const { enunciado, opcoes, respostaCorreta, area, nivelDificuldade } = req.body;
+    const { enunciado, opcoes, respostaCorreta, area, nivelDificuldade, tipo_questao } = req.body;
     const professorId = req.session.professorId;
     
     const questaoId = await db.addQuestao({
@@ -438,6 +464,7 @@ app.post('/api/questoes', requireAuth, async (req, res) => {
       respostaCorreta: parseInt(respostaCorreta),
       area,
       nivelDificuldade: nivelDificuldade || 'medio',
+      tipo_questao: tipo_questao || 'multipla_escolha',
       professorId
     });
     
@@ -485,6 +512,171 @@ app.post('/api/novo-usuario', requireAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro ao criar usuário'
+    });
+  }
+});
+
+// ==================== ROTAS DE TEMPLATES DE CABEÇALHO ====================
+
+// Lista de templates de cabeçalho
+app.get('/templates-cabecalho', requireAuth, async (req, res) => {
+  try {
+    const professorId = req.session.professorId;
+    const templates = await db.getHeaderTemplates(professorId);
+    
+    res.render('templates-cabecalho/lista', {
+      professor: { nome: req.session.professorNome },
+      templates
+    });
+  } catch (error) {
+    console.error('Erro ao carregar templates:', error);
+    res.status(500).send('Erro interno do servidor');
+  }
+});
+
+// Novo template de cabeçalho
+app.get('/templates-cabecalho/novo', requireAuth, (req, res) => {
+  res.render('templates-cabecalho/novo', {
+    professor: { nome: req.session.professorNome }
+  });
+});
+
+// Criar novo template de cabeçalho
+app.post('/api/templates-cabecalho', requireAuth, logoUpload.single('logo'), async (req, res) => {
+  try {
+    const { nome, escola_nome, campos_personalizados } = req.body;
+    const professorId = req.session.professorId;
+    
+    let logoPath = null;
+    if (req.file) {
+      logoPath = `/uploads/logos/${req.file.filename}`;
+    }
+    
+    const template = {
+      nome,
+      escola_nome,
+      logo_path: logoPath,
+      campos_personalizados: JSON.parse(campos_personalizados || '{}'),
+      professor_id: professorId
+    };
+    
+    const templateId = await db.addHeaderTemplate(template);
+    
+    res.json({ success: true, message: 'Template criado com sucesso!', templateId });
+  } catch (error) {
+    console.error('Erro ao criar template:', error);
+    res.json({ success: false, message: 'Erro ao criar template' });
+  }
+});
+
+// Visualizar template de cabeçalho
+app.get('/templates-cabecalho/:id/visualizar', requireAuth, async (req, res) => {
+  try {
+    const templateId = req.params.id;
+    const professorId = req.session.professorId;
+    
+    const template = await db.getHeaderTemplateById(templateId, professorId);
+    if (!template) {
+      return res.status(404).send('Template não encontrado');
+    }
+    
+    res.render('templates-cabecalho/visualizar', {
+      professor: { nome: req.session.professorNome },
+      template
+    });
+  } catch (error) {
+    console.error('Erro ao carregar template:', error);
+    res.status(500).send('Erro interno do servidor');
+  }
+});
+
+// Editar template de cabeçalho
+app.get('/templates-cabecalho/:id/editar', requireAuth, async (req, res) => {
+  try {
+    const templateId = req.params.id;
+    const professorId = req.session.professorId;
+    
+    const template = await db.getHeaderTemplateById(templateId, professorId);
+    if (!template) {
+      return res.status(404).send('Template não encontrado');
+    }
+    
+    res.render('templates-cabecalho/editar', {
+      professor: { nome: req.session.professorNome },
+      template
+    });
+  } catch (error) {
+    console.error('Erro ao carregar template:', error);
+    res.status(500).send('Erro interno do servidor');
+  }
+});
+
+// Atualizar template de cabeçalho
+app.post('/templates-cabecalho/:id/editar', requireAuth, logoUpload.single('logo'), async (req, res) => {
+  try {
+    const templateId = req.params.id;
+    const professorId = req.session.professorId;
+    const { nome, escola_nome, campos_personalizados } = req.body;
+    
+    // Verificar se o template pertence ao professor
+    const templateExistente = await db.getHeaderTemplateById(templateId, professorId);
+    if (!templateExistente) {
+      return res.status(404).json({
+        success: false,
+        message: 'Template não encontrado'
+      });
+    }
+    
+    let logoPath = templateExistente.logo_path;
+    if (req.file) {
+      logoPath = `/uploads/logos/${req.file.filename}`;
+    }
+    
+    const template = {
+      nome,
+      escola_nome,
+      logo_path: logoPath,
+      campos_personalizados: JSON.parse(campos_personalizados || '{}')
+    };
+    
+    await db.updateHeaderTemplate(templateId, template);
+    
+    res.json({
+      success: true,
+      message: 'Template atualizado com sucesso!'
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar template:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao atualizar template'
+    });
+  }
+});
+
+// Excluir template de cabeçalho
+app.delete('/templates-cabecalho/:id', requireAuth, async (req, res) => {
+  try {
+    const templateId = req.params.id;
+    const professorId = req.session.professorId;
+    
+    // Verificar se o template pertence ao professor
+    const template = await db.getHeaderTemplateById(templateId, professorId);
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'Template não encontrado'
+      });
+    }
+    
+    await db.deleteHeaderTemplate(templateId, professorId);
+    
+    res.json({ success: true, message: 'Template excluído com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao excluir template:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao excluir template'
     });
   }
 });
@@ -610,11 +802,17 @@ app.get('/provas/:id', requireAuth, async (req, res) => {
     
     // Buscar questões da prova
     const questoes = await db.getQuestoesProva(provaId);
+    console.log(`Prova ${provaId}: ${questoes.length} questões encontradas:`, questoes.map(q => ({ id: q.id, enunciado: q.enunciado?.substring(0, 50) + '...' })));
+    
+    // Buscar template de cabeçalho padrão do professor
+    const templates = await db.getHeaderTemplates(professorId);
+    const templateCabecalho = templates && templates.length > 0 ? templates[0] : null;
     
     res.render('provas/visualizar', {
       professor: { nome: req.session.professorNome },
       prova,
-      questoes
+      questoes,
+      templateCabecalho
     });
   } catch (error) {
     console.error('Erro ao carregar prova:', error);
@@ -733,12 +931,16 @@ app.get('/provas/:provaId/aluno/:alunoId', requireAuth, async (req, res) => {
     
     // Buscar aluno
     const aluno = await db.getAlunoById(alunoId);
-  if (!aluno) {
-    return res.status(404).send('Aluno não encontrado');
-  }
+    if (!aluno) {
+      return res.status(404).send('Aluno não encontrado');
+    }
 
     // Buscar questões da prova
     const questoes = await db.getQuestoesProva(provaId);
+    
+    // Buscar template de cabeçalho padrão do professor
+    const templates = await db.getHeaderTemplates(professorId);
+    const templateCabecalho = templates && templates.length > 0 ? templates[0] : null;
     
     // Embaralhar questões e opções
     const questoesEmbaralhadas = embaralharQuestoes(questoes);
@@ -747,19 +949,20 @@ app.get('/provas/:provaId/aluno/:alunoId', requireAuth, async (req, res) => {
     const questoesComQR = await Promise.all(
       questoesEmbaralhadas.map(async (questao, index) => {
         const qrCodeData = await gerarQRCode(`Prova: ${prova.titulo} - Questão: ${index + 1} - Aluno: ${aluno.nome}`);
-      return {
-        ...questao,
+        return {
+          ...questao,
           qrCode: qrCodeData,
           numero: index + 1
-      };
-    })
-  );
+        };
+      })
+    );
 
     res.render('provas/realizar', {
       professor: { nome: req.session.professorNome },
       prova,
       aluno,
-      questoes: questoesComQR
+      questoes: questoesComQR,
+      templateCabecalho
     });
   } catch (error) {
     console.error('Erro ao gerar prova para aluno:', error);

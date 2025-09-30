@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Template de Cabeçalho - Minha Prova</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .breadcrumb-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb-separator {
+            margin: 0 10px;
+            color: #666;
+        }
+
+        .breadcrumb-current {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-size: 2em;
+            color: #333;
+            margin: 0 0 20px 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .file-upload {
+            border: 2px dashed #e1e5e9;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            transition: border-color 0.3s;
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+        }
+
+        .file-upload.dragover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-icon {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-text {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-hint {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .logo-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .logo-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            border: 2px solid #e1e5e9;
+        }
+
+        .campos-container {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .campos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .campos-header h4 {
+            margin: 0;
+            color: #333;
+        }
+
+        .campo-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .campo-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .campo-label {
+            min-width: 120px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-remove-campo {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-remove-campo:hover {
+            background: #c82333;
+        }
+
+        .btn-add-campo {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .btn-add-campo:hover {
+            background: #218838;
+        }
+
+        /* Estilos para questões */
+        .questoes-container {
+            background: #f8f9fa;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .questoes-header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .questoes-header h4 {
+            margin: 0;
+            color: #333;
+        }
+
+        .questao-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .questao-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .questao-numero {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .btn-remove-questao {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .questao-enunciado {
+            margin-bottom: 15px;
+        }
+
+        .questao-enunciado textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .opcoes-container {
+            margin-bottom: 15px;
+        }
+
+        .opcao-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .opcao-letra {
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .opcao-item input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-remove-opcao {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-add-opcao {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .btn-add-questao {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .btn-add-questao:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        /* Estilos para configurações de impressão */
+        .impressao-config {
+            background: #f8f9fa;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-item {
+            margin-bottom: 15px;
+        }
+
+        .config-item label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .config-item input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+
+        /* Estilos para resposta correta */
+        .resposta-correta {
+            background: #e8f5e8;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .resposta-correta label {
+            display: block;
+            font-weight: 600;
+            color: #155724;
+            margin-bottom: 8px;
+        }
+
+        .select-correta {
+            padding: 8px 15px;
+            border: 1px solid #28a745;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            background: white;
+            color: #155724;
+            min-width: 80px;
+        }
+
+        .opcao-correta {
+            margin-left: 10px;
+            transform: scale(1.3);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 1em;
+            transition: transform 0.2s;
+            margin: 0 5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .preview-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-section h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+
+        .header-preview {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-preview-text {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .header-preview-logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .campos-preview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .campo-preview {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #e1e5e9;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">📚 Minha Prova</div>
+            <div>
+                <span>👋 Olá, <%= professor.nome %></span>
+                <a href="/logout" style="color: #dc3545; text-decoration: none; margin-left: 15px;">Sair</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="breadcrumb">
+                <a href="/dashboard" class="breadcrumb-link">🏠 Dashboard</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="/templates-cabecalho" class="breadcrumb-link">📋 Templates de Cabeçalho</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current">➕ Novo Template</span>
+            </div>
+            <h1 class="page-title">➕ Novo Template de Cabeçalho</h1>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn btn-secondary">🏠 Dashboard</a>
+                <a href="/templates-cabecalho" class="btn btn-secondary">← Voltar</a>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form id="novo-template-form" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nome">Nome do Template:</label>
+                        <input type="text" id="nome" name="nome" required placeholder="Ex: Colégio Imaculada Conceição" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="escola_nome">Nome da Escola:</label>
+                        <input type="text" id="escola_nome" name="escola_nome" required placeholder="Ex: COLÉGIO IMACULADA CONCEIÇÃO - CIC" value="">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Logo da Escola:</label>
+                    <div class="file-upload" onclick="document.getElementById('logo').click()">
+                        <div class="file-upload-icon">📷</div>
+                        <div class="file-upload-text">Clique para selecionar ou arraste uma imagem</div>
+                        <div class="file-upload-hint">PNG, JPG ou GIF (máx. 2MB)</div>
+                        <input type="file" id="logo" name="logo" accept="image/*">
+                    </div>
+                    <div class="logo-preview" id="logo-preview"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Campos Personalizados:</label>
+                    <div class="campos-container">
+                        <div class="campos-header">
+                            <h4>📝 Campos do Cabeçalho</h4>
+                            <small style="color: #666;">Adicione campos que aparecerão no cabeçalho da prova</small>
+                        </div>
+                        <div id="campos-container">
+                            <div class="campo-item">
+                                <span class="campo-label">Aluno(a):</span>
+                                <input type="text" class="campo-input" placeholder="Nome do campo" value="Aluno(a):">
+                                <button type="button" class="btn-remove-campo" onclick="removerCampo(this)" disabled>🗑️</button>
+                            </div>
+                            <div class="campo-item">
+                                <span class="campo-label">Professor(a):</span>
+                                <input type="text" class="campo-input" placeholder="Nome do campo" value="Professor(a):">
+                                <button type="button" class="btn-remove-campo" onclick="removerCampo(this)" disabled>🗑️</button>
+                            </div>
+                            <div class="campo-item">
+                                <span class="campo-label">Série:</span>
+                                <input type="text" class="campo-input" placeholder="Nome do campo" value="Série:">
+                                <button type="button" class="btn-remove-campo" onclick="removerCampo(this)" disabled>🗑️</button>
+                            </div>
+                            <div class="campo-item">
+                                <span class="campo-label">Data:</span>
+                                <input type="text" class="campo-input" placeholder="Nome do campo" value="Data:">
+                                <button type="button" class="btn-remove-campo" onclick="removerCampo(this)" disabled>🗑️</button>
+                            </div>
+                            <div class="campo-item">
+                                <span class="campo-label">Disciplina:</span>
+                                <input type="text" class="campo-input" placeholder="Nome do campo" value="Disciplina:">
+                                <button type="button" class="btn-remove-campo" onclick="removerCampo(this)" disabled>🗑️</button>
+                            </div>
+                            <div class="campo-item">
+                                <span class="campo-label">Nota:</span>
+                                <input type="text" class="campo-input" placeholder="Nome do campo" value="Nota:">
+                                <button type="button" class="btn-remove-campo" onclick="removerCampo(this)" disabled>🗑️</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-campo" onclick="adicionarCampo()">➕ Adicionar Campo</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>📝 Questões da Prova:</label>
+                    <div class="questoes-container">
+                        <div class="questoes-header">
+                            <h4>📝 Adicionar Questões</h4>
+                            <small style="color: #666;">Adicione as questões que aparecerão na prova</small>
+                        </div>
+                        <div id="questoes-container">
+                            <!-- Questões serão adicionadas aqui -->
+                        </div>
+                        <button type="button" class="btn-add-questao" onclick="adicionarQuestao()">➕ Adicionar Questão</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>🖨️ Configurações de Impressão:</label>
+                    <div class="impressao-config">
+                        <div class="config-item">
+                            <label for="quantidade-provas">Quantas versões diferentes da prova?</label>
+                            <select id="quantidade-provas" class="form-select">
+                                <option value="1">1 versão (todos iguais)</option>
+                                <option value="2">2 versões</option>
+                                <option value="3">3 versões</option>
+                                <option value="4">4 versões</option>
+                                <option value="5">5 versões</option>
+                            </select>
+                        </div>
+                        <div class="config-item">
+                            <label for="quantidade-copias">Quantas cópias por versão?</label>
+                            <input type="number" id="quantidade-copias" class="form-input" value="1" min="1" max="50">
+                        </div>
+                        <div class="config-item">
+                            <label>
+                                <input type="checkbox" id="incluir-qrcode" checked> 
+                                Incluir QR Code do gabarito completo
+                            </label>
+                        </div>
+                        <div class="config-item">
+                            <label>
+                                <input type="checkbox" id="embaralhar-opcoes" checked> 
+                                Embaralhar opções (A, B, C, D) em cada versão
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="cancelarCriacao()">❌ Cancelar</button>
+            <button type="button" class="btn btn-success" onclick="gerarProvaCompleta()">🖨️ Gerar Provas</button>
+            <button type="button" class="btn btn-primary" onclick="salvarComoProvaCompleta()">💾 Salvar como Prova Completa</button>
+        </div>
+            </form>
+
+            <div class="preview-section">
+                <h4>👁️ Pré-visualização</h4>
+                <div class="header-preview">
+                    <span class="header-preview-text" id="preview-escola">Nome da Escola</span>
+                    <div class="header-preview-logo" id="preview-logo">🏫</div>
+                </div>
+                <div class="campos-preview" id="preview-campos">
+                    <!-- Campos serão inseridos aqui dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let campoCount = 6; // Começa com 6 campos padrão
+
+        // Preview do logo
+        document.getElementById('logo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('logo-preview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview do logo">`;
+                    document.getElementById('preview-logo').innerHTML = `<img src="${e.target.result}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 3px;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Preview em tempo real
+        document.getElementById('escola_nome').addEventListener('input', function() {
+            document.getElementById('preview-escola').textContent = this.value || 'Nome da Escola';
+        });
+
+        function adicionarCampo() {
+            const container = document.getElementById('campos-container');
+            const novoCampo = document.createElement('div');
+            novoCampo.className = 'campo-item';
+            novoCampo.innerHTML = `
+                <span class="campo-label">Campo ${campoCount + 1}:</span>
+                <input type="text" class="campo-input" placeholder="Nome do campo" value="">
+                <button type="button" class="btn-remove-campo" onclick="removerCampo(this)">🗑️</button>
+            `;
+            container.appendChild(novoCampo);
+            campoCount++;
+            atualizarPreview();
+        }
+
+        function removerCampo(button) {
+            const campoItem = button.parentElement;
+            campoItem.remove();
+            atualizarPreview();
+        }
+
+        function atualizarPreview() {
+            const campos = document.querySelectorAll('.campo-item .campo-input');
+            const previewContainer = document.getElementById('preview-campos');
+            previewContainer.innerHTML = '';
+
+            campos.forEach(campo => {
+                if (campo.value.trim()) {
+                    const campoPreview = document.createElement('div');
+                    campoPreview.className = 'campo-preview';
+                    campoPreview.textContent = `${campo.value}: _________________`;
+                    previewContainer.appendChild(campoPreview);
+                }
+            });
+        }
+
+        // Atualizar preview quando campos mudarem
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('campo-input')) {
+                atualizarPreview();
+            }
+        });
+
+        // Drag and drop para logo
+        const fileUpload = document.querySelector('.file-upload');
+        
+        fileUpload.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        fileUpload.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        fileUpload.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('logo').files = files;
+                document.getElementById('logo').dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Enviar formulário
+        document.getElementById('novo-template-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('nome', document.getElementById('nome').value);
+            formData.append('escola_nome', document.getElementById('escola_nome').value);
+            
+            const logoFile = document.getElementById('logo').files[0];
+            if (logoFile) {
+                formData.append('logo', logoFile);
+            }
+            
+            // Coletar campos personalizados
+            const campos = {};
+            document.querySelectorAll('.campo-item .campo-input').forEach(campo => {
+                if (campo.value.trim()) {
+                    const label = campo.parentElement.querySelector('.campo-label').textContent.replace(':', '');
+                    campos[label] = campo.value.trim();
+                }
+            });
+            formData.append('campos_personalizados', JSON.stringify(campos));
+            
+            try {
+                const response = await fetch('/api/templates-cabecalho', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Template criado com sucesso!');
+                    window.location.href = '/templates-cabecalho';
+                } else {
+                    alert('Erro ao criar template: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao criar template. Tente novamente.');
+            }
+        });
+
+        // ==================== FUNÇÕES PARA QUESTÕES ====================
+        let questaoCount = 0;
+
+        function adicionarQuestao() {
+            questaoCount++;
+            const container = document.getElementById('questoes-container');
+            const novaQuestao = document.createElement('div');
+            novaQuestao.className = 'questao-item';
+            novaQuestao.innerHTML = `
+                <div class="questao-header">
+                    <span class="questao-numero">Questão ${questaoCount}</span>
+                    <button type="button" class="btn-remove-questao" onclick="removerQuestao(this)">🗑️</button>
+                </div>
+                <div class="questao-enunciado">
+                    <textarea placeholder="Digite o enunciado da questão..." required></textarea>
+                </div>
+                <div class="opcoes-container">
+                    <div class="opcao-item">
+                        <span class="opcao-letra">A</span>
+                        <input type="text" placeholder="Opção A" required>
+                        <input type="radio" name="correta-questao-${questaoCount}" value="A" class="opcao-correta">
+                        <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)">🗑️</button>
+                    </div>
+                    <div class="opcao-item">
+                        <span class="opcao-letra">B</span>
+                        <input type="text" placeholder="Opção B" required>
+                        <input type="radio" name="correta-questao-${questaoCount}" value="B" class="opcao-correta">
+                        <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)">🗑️</button>
+                    </div>
+                    <div class="opcao-item">
+                        <span class="opcao-letra">C</span>
+                        <input type="text" placeholder="Opção C" required>
+                        <input type="radio" name="correta-questao-${questaoCount}" value="C" class="opcao-correta">
+                        <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)">🗑️</button>
+                    </div>
+                    <div class="opcao-item">
+                        <span class="opcao-letra">D</span>
+                        <input type="text" placeholder="Opção D" required>
+                        <input type="radio" name="correta-questao-${questaoCount}" value="D" class="opcao-correta">
+                        <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)">🗑️</button>
+                    </div>
+                    <div class="resposta-correta">
+                        <label>✅ Alternativa correta:</label>
+                        <select class="select-correta" name="correta-select-${questaoCount}">
+                            <option value="">Selecione...</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn-add-opcao" onclick="adicionarOpcao(this)">➕ Adicionar Opção</button>
+                </div>
+            `;
+            container.appendChild(novaQuestao);
+        }
+
+        function removerQuestao(btn) {
+            if (confirm('Tem certeza que deseja remover esta questão?')) {
+                btn.closest('.questao-item').remove();
+                renumerarQuestoes();
+            }
+        }
+
+        function renumerarQuestoes() {
+            const questoes = document.querySelectorAll('.questao-numero');
+            questoes.forEach((questao, index) => {
+                questao.textContent = `Questão ${index + 1}`;
+            });
+            questaoCount = questoes.length;
+        }
+
+        function adicionarOpcao(btn) {
+            const opcoesContainer = btn.previousElementSibling.previousElementSibling;
+            const opcoes = opcoesContainer.querySelectorAll('.opcao-item');
+            const proximaLetra = String.fromCharCode(65 + opcoes.length);
+            const questaoNumero = btn.closest('.questao-item').querySelector('.questao-numero').textContent.split(' ')[1];
+            
+            const novaOpcao = document.createElement('div');
+            novaOpcao.className = 'opcao-item';
+            novaOpcao.innerHTML = `
+                <span class="opcao-letra">${proximaLetra}</span>
+                <input type="text" placeholder="Opção ${proximaLetra}" required>
+                <input type="radio" name="correta-questao-${questaoNumero}" value="${proximaLetra}" class="opcao-correta">
+                <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)">🗑️</button>
+            `;
+            opcoesContainer.appendChild(novaOpcao);
+            
+            // Atualizar select de alternativa correta
+            atualizarSelectCorreta(btn.closest('.questao-item'));
+        }
+
+        function removerOpcao(btn) {
+            const opcoesContainer = btn.closest('.opcoes-container');
+            const opcoes = opcoesContainer.querySelectorAll('.opcao-item');
+            
+            if (opcoes.length > 2) {
+                btn.closest('.opcao-item').remove();
+                renumerarOpcoes(opcoesContainer);
+                atualizarSelectCorreta(btn.closest('.questao-item'));
+            } else {
+                alert('Cada questão deve ter pelo menos 2 opções!');
+            }
+        }
+
+        function renumerarOpcoes(container) {
+            const opcoes = container.querySelectorAll('.opcao-letra');
+            const radioButtons = container.querySelectorAll('.opcao-correta');
+            
+            opcoes.forEach((letra, index) => {
+                const novaLetra = String.fromCharCode(65 + index);
+                letra.textContent = novaLetra;
+                radioButtons[index].value = novaLetra;
+                radioButtons[index].name = radioButtons[index].name; // Manter o mesmo name
+            });
+        }
+
+        function atualizarSelectCorreta(questaoItem) {
+            const opcoes = questaoItem.querySelectorAll('.opcao-item');
+            const select = questaoItem.querySelector('.select-correta');
+            
+            // Limpar opções existentes (exceto a primeira)
+            while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+            }
+            
+            // Adicionar opções baseadas nas opções disponíveis
+            opcoes.forEach((opcao, index) => {
+                const letra = opcao.querySelector('.opcao-letra').textContent;
+                const option = document.createElement('option');
+                option.value = letra;
+                option.textContent = letra;
+                select.appendChild(option);
+            });
+        }
+
+        async function gerarProvaCompleta() {
+            // Coletar dados do cabeçalho
+            const nomeTemplate = document.getElementById('nome').value;
+            const escolaNome = document.getElementById('escola_nome').value;
+            const logoFile = document.getElementById('logo').files[0];
+            
+            // Coletar configurações
+            const quantidadeVersoes = parseInt(document.getElementById('quantidade-provas').value);
+            const quantidadeCopias = parseInt(document.getElementById('quantidade-copias').value);
+            const incluirQRCode = document.getElementById('incluir-qrcode').checked;
+            const embaralharOpcoes = document.getElementById('embaralhar-opcoes').checked;
+            
+            // Coletar campos personalizados
+            const campos = {};
+            document.querySelectorAll('.campo-item').forEach(campo => {
+                const label = campo.querySelector('.campo-label').textContent.replace(':', '');
+                const value = campo.querySelector('.campo-input').value;
+                if (label && value) {
+                    campos[label] = value;
+                }
+            });
+            
+            // Coletar questões
+            const questoes = [];
+            document.querySelectorAll('.questao-item').forEach((questaoItem, index) => {
+                const enunciado = questaoItem.querySelector('textarea').value;
+                const opcoes = [];
+                
+                questaoItem.querySelectorAll('.opcao-item').forEach(opcaoItem => {
+                    const texto = opcaoItem.querySelector('input').value;
+                    if (texto) {
+                        opcoes.push(texto);
+                    }
+                });
+                
+                // Obter alternativa correta
+                const selectCorreta = questaoItem.querySelector('.select-correta');
+                const alternativaCorreta = selectCorreta ? selectCorreta.value : '';
+                
+                if (enunciado && opcoes.length >= 2 && alternativaCorreta) {
+                    questoes.push({
+                        numero: index + 1,
+                        enunciado: enunciado,
+                        opcoes: opcoes,
+                        respostaCorreta: alternativaCorreta
+                    });
+                }
+            });
+            
+            // Validar dados
+            if (!nomeTemplate || !escolaNome) {
+                alert('Por favor, preencha o nome do template e o nome da escola!');
+                return;
+            }
+            
+            if (questoes.length === 0) {
+                alert('Por favor, adicione pelo menos uma questão!');
+                return;
+            }
+            
+            // Verificar se todas as questões têm alternativa correta
+            const questoesSemResposta = questoes.filter(q => !q.respostaCorreta);
+            if (questoesSemResposta.length > 0) {
+                alert('Por favor, selecione a alternativa correta para todas as questões!');
+                return;
+            }
+            
+            // Gerar QR code do gabarito se necessário
+            let gabaritoQRCode = '';
+            if (incluirQRCode) {
+                gabaritoQRCode = await gerarQRCodeGabarito(questoes, escolaNome);
+            }
+            
+            // Gerar todas as versões
+            const todasVersoes = [];
+            for (let versao = 1; versao <= quantidadeVersoes; versao++) {
+                for (let copia = 1; copia <= quantidadeCopias; copia++) {
+                    const questoesVersao = embaralharOpcoes ? embaralharQuestoes(questoes) : questoes;
+                    const provaHTML = await gerarHTMLProva(escolaNome, logoFile, campos, questoesVersao, versao, copia, gabaritoQRCode);
+                    todasVersoes.push({
+                        versao: versao,
+                        copia: copia,
+                        html: provaHTML
+                    });
+                }
+            }
+            
+            // Mostrar resumo e abrir para impressão
+            mostrarResumoImpressao(todasVersoes, quantidadeVersoes, quantidadeCopias);
+        }
+
+
+        // Função para gerar QR code com gabarito
+        async function gerarQRCodeGabarito(questoes, escolaNome) {
+            const gabarito = questoes.map(q => `Q${q.numero}: ${q.respostaCorreta}`).join(' | ');
+            const dadosGabarito = `GABARITO - ${escolaNome}\n${gabarito}`;
+            
+            try {
+                const response = await fetch('/api/gerar-qr', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: dadosGabarito
+                    })
+                });
+                
+                const result = await response.json();
+                return result.success ? result.qrCode : '';
+            } catch (error) {
+                console.error('Erro ao gerar QR code do gabarito:', error);
+                return '';
+            }
+        }
+
+        // Função para embaralhar questões
+        function embaralharQuestoes(questoes) {
+            return questoes.map(questao => {
+                const opcoes = [...questao.opcoes];
+                // Embaralhar array de opções
+                for (let i = opcoes.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [opcoes[i], opcoes[j]] = [opcoes[j], opcoes[i]];
+                }
+                return {
+                    ...questao,
+                    opcoes: opcoes
+                };
+            });
+        }
+
+        // Função para salvar como prova completa
+        async function salvarComoProvaCompleta() {
+            // Coletar dados do cabeçalho
+            const nomeTemplate = document.getElementById('nome').value;
+            const escolaNome = document.getElementById('escola_nome').value;
+            const logoFile = document.getElementById('logo').files[0];
+            
+            // Coletar campos personalizados
+            const campos = {};
+            document.querySelectorAll('.campo-item').forEach(campo => {
+                const label = campo.querySelector('.campo-label').textContent.replace(':', '');
+                const value = campo.querySelector('.campo-input').value;
+                if (label && value) {
+                    campos[label] = value;
+                }
+            });
+            
+            // Coletar questões
+            const questoes = [];
+            document.querySelectorAll('.questao-item').forEach((questaoItem, index) => {
+                const enunciado = questaoItem.querySelector('textarea').value;
+                const opcoes = [];
+                
+                questaoItem.querySelectorAll('.opcao-item').forEach(opcaoItem => {
+                    const texto = opcaoItem.querySelector('input').value;
+                    if (texto) {
+                        opcoes.push(texto);
+                    }
+                });
+                
+                // Obter alternativa correta
+                const selectCorreta = questaoItem.querySelector('.select-correta');
+                const alternativaCorreta = selectCorreta ? selectCorreta.value : '';
+                
+                if (enunciado && opcoes.length >= 2 && alternativaCorreta) {
+                    questoes.push({
+                        enunciado: enunciado,
+                        opcoes: opcoes,
+                        respostaCorreta: alternativaCorreta
+                    });
+                }
+            });
+            
+            // Validar dados
+            if (!nomeTemplate || !escolaNome) {
+                alert('Por favor, preencha o nome do template e o nome da escola!');
+                return;
+            }
+            
+            if (questoes.length === 0) {
+                alert('Por favor, adicione pelo menos uma questão!');
+                return;
+            }
+            
+            // Verificar se todas as questões têm alternativa correta
+            const questoesSemResposta = questoes.filter(q => !q.respostaCorreta);
+            if (questoesSemResposta.length > 0) {
+                alert('Por favor, selecione a alternativa correta para todas as questões!');
+                return;
+            }
+            
+            try {
+                // Primeiro, salvar o template de cabeçalho
+                const templateData = new FormData();
+                templateData.append('nome', nomeTemplate);
+                templateData.append('escola_nome', escolaNome);
+                templateData.append('campos_personalizados', JSON.stringify(campos));
+                
+                if (logoFile) {
+                    templateData.append('logo', logoFile);
+                }
+                
+                const templateResponse = await fetch('/api/templates-cabecalho', {
+                    method: 'POST',
+                    body: templateData
+                });
+                
+                const templateResult = await templateResponse.json();
+                
+                if (!templateResult.success) {
+                    alert('Erro ao salvar template: ' + templateResult.message);
+                    return;
+                }
+                
+                // Agora, criar as questões no banco de dados
+                const questoesIds = [];
+                for (const questao of questoes) {
+                    // Converter resposta correta para índice (A=0, B=1, C=2, D=3)
+                    const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+                    const respostaIndex = letras.indexOf(questao.respostaCorreta);
+                    
+                    const questaoData = {
+                        enunciado: questao.enunciado,
+                        opcoes: JSON.stringify(questao.opcoes),
+                        respostaCorreta: respostaIndex,
+                        area: 'Geral',
+                        nivelDificuldade: 'medio',
+                        professorId: null // Será definido no servidor
+                    };
+                    
+                    const questaoResponse = await fetch('/api/questoes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(questaoData)
+                    });
+                    
+                    const questaoResult = await questaoResponse.json();
+                    if (questaoResult.success) {
+                        questoesIds.push(questaoResult.questaoId);
+                    }
+                }
+                
+                // Finalmente, criar a prova completa
+                const provaData = {
+                    titulo: nomeTemplate,
+                    disciplina: 'Prova Completa',
+                    descricao: `Prova criada a partir do template: ${nomeTemplate}`,
+                    tempoLimite: 90,
+                    turma_nome: 'Geral',
+                    textoPersonalizado: `Cabeçalho personalizado: ${escolaNome}`,
+                    questoesIds: questoesIds
+                };
+                
+                const provaResponse = await fetch('/api/provas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(provaData)
+                });
+                
+                const provaResult = await provaResponse.json();
+                
+                if (provaResult.success) {
+                    alert('✅ Prova completa salva com sucesso!\n\n📋 Template de cabeçalho salvo\n❓ Questões criadas\n📝 Prova completa criada\n\nAgora você pode acessar em "Provas" para visualizar e gerar para alunos.');
+                    window.location.href = '/provas';
+                } else {
+                    alert('Erro ao criar prova: ' + provaResult.message);
+                }
+                
+            } catch (error) {
+                console.error('Erro ao salvar prova completa:', error);
+                alert('Erro ao salvar prova completa. Tente novamente.');
+            }
+        }
+
+        // Função para mostrar resumo da impressão
+        function mostrarResumoImpressao(todasVersoes, quantidadeVersoes, quantidadeCopias) {
+            const totalProvas = todasVersoes.length;
+            const resumo = `
+                📊 Resumo da Impressão:
+                
+                • Total de versões: ${quantidadeVersoes}
+                • Cópias por versão: ${quantidadeCopias}
+                • Total de provas: ${totalProvas}
+                
+                Versões geradas:
+                ${todasVersoes.map(v => `• Versão ${v.versao} - Cópia ${v.copia}`).join('\n')}
+                
+                Clique OK para abrir a janela de impressão.
+            `;
+            
+            if (confirm(resumo)) {
+                // Abrir todas as versões em uma única janela
+                const todasProvasHTML = todasVersoes.map(versao => 
+                    `<div style="page-break-after: always;">
+                        <h2 style="text-align: center; color: #667eea; margin-bottom: 20px;">
+                            VERSÃO ${versao.versao} - CÓPIA ${versao.copia}
+                        </h2>
+                        ${versao.html}
+                    </div>`
+                ).join('');
+                
+                const htmlCompleto = `
+                    <!DOCTYPE html>
+                    <html lang="pt-BR">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Provas - ${totalProvas} versões</title>
+                        <style>
+                            @media print { 
+                                body { background: white; } 
+                                .header-custom { box-shadow: none; }
+                                h2 { page-break-before: always; }
+                                h2:first-child { page-break-before: auto; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${todasProvasHTML}
+                    </body>
+                    </html>
+                `;
+                
+                const novaJanela = window.open('', '_blank');
+                novaJanela.document.write(htmlCompleto);
+                novaJanela.document.close();
+                
+                // Aguardar carregamento e imprimir
+                novaJanela.onload = function() {
+                    setTimeout(() => {
+                        novaJanela.print();
+                    }, 1000);
+                };
+            }
+        }
+
+        function gerarHTMLProva(escolaNome, logoFile, campos, questoes, versao = 1, copia = 1, gabaritoQRCode = '') {
+            let logoHtml = '<div style="width: 60px; height: 60px; background: #667eea; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2em; color: white;">🏫</div>';
+            
+            if (logoFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    logoHtml = `<img src="${e.target.result}" alt="Logo" style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px;">`;
+                };
+                reader.readAsDataURL(logoFile);
+            }
+            
+            let camposHtml = '';
+            Object.entries(campos).forEach(([label, value]) => {
+                camposHtml += `
+                    <div style="background: #f8f9fa; padding: 12px 15px; border-radius: 8px; border: 1px solid #e1e5e9; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-weight: 600; color: #333;">${label}:</span>
+                        <span style="color: #666; font-weight: 500;">${value}</span>
+                    </div>
+                `;
+            });
+            
+            let questoesHtml = '';
+            questoes.forEach((questao, index) => {
+                let opcoesHtml = '';
+                questao.opcoes.forEach((opcao, opcaoIndex) => {
+                    const letra = String.fromCharCode(65 + opcaoIndex);
+                    opcoesHtml += `
+                        <div style="background: #f8f9fa; border: 2px solid #e1e5e9; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+                            <span style="background: #667eea; color: white; border-radius: 50%; width: 25px; height: 25px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-right: 12px;">${letra}</span>
+                            ${opcao}
+                        </div>
+                    `;
+                });
+                
+                
+                questoesHtml += `
+                    <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px; page-break-inside: avoid;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <span style="font-size: 1.2em; font-weight: 600; color: #667eea;">Questão ${questao.numero}</span>
+                            ${versao > 1 ? `<span style="background: #ffc107; color: #333; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold;">V${versao}</span>` : ''}
+                        </div>
+                        <div style="font-size: 1.1em; margin-bottom: 25px; color: #212529;">
+                            ${questao.enunciado}
+                        </div>
+                        ${opcoesHtml}
+                    </div>
+                `;
+            });
+            
+            return `
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Prova - ${escolaNome}</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; }
+                        .container { max-width: 800px; margin: 0 auto; }
+                        .header-custom { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+                        .header-top { background: #667eea; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+                        .escola-nome { font-size: 1.3em; font-weight: bold; }
+                        .logo-custom { width: 60px; height: 60px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+                        .campos-custom { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+                        @media print { body { background: white; } .header-custom { box-shadow: none; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header-custom">
+                            <div class="header-top">
+                                <span class="escola-nome">${escolaNome}</span>
+                                ${logoHtml}
+                            </div>
+                            <div class="campos-custom">
+                                ${camposHtml}
+                            </div>
+                        </div>
+                        ${questoesHtml}
+                        
+                        ${gabaritoQRCode ? `
+                            <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-top: 30px; text-align: center; page-break-inside: avoid;">
+                                <h3 style="color: #667eea; margin-bottom: 20px;">📱 QR Code do Gabarito</h3>
+                                <div style="display: flex; justify-content: center; align-items: center; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 2px solid #e1e5e9;">
+                                    <div style="text-align: center;">
+                                        <img src="${gabaritoQRCode}" alt="QR Code Gabarito" style="max-width: 120px; max-height: 120px; border-radius: 8px;">
+                                        <p style="margin: 10px 0 0 0; color: #666; font-size: 0.9em; font-weight: bold;">GABARITO COMPLETO</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+
+        function cancelarCriacao() {
+            if (confirm('Tem certeza que deseja cancelar? As alterações serão perdidas.')) {
+                window.location.href = '/templates-cabecalho';
+            }
+        }
+
+        // Atualizar preview inicial
+        atualizarPreview();
+    </script>
+</body>
+</html>

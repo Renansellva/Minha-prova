@@ -322,19 +322,9 @@
                     <textarea id="enunciado" name="enunciado" required placeholder="Digite o enunciado da questão aqui..."><%= questao.enunciado %></textarea>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="area">Área de Conhecimento:</label>
-                        <input type="text" id="area" name="area" required placeholder="Ex: Matemática, Português" value="<%= questao.area %>">
-                    </div>
-                    <div class="form-group">
-                        <label for="nivel">Nível de Dificuldade:</label>
-                        <select id="nivel" name="nivel" required>
-                            <option value="facil" <%= questao.nivel_dificuldade === 'facil' ? 'selected' : '' %>>Fácil</option>
-                            <option value="medio" <%= questao.nivel_dificuldade === 'medio' ? 'selected' : '' %>>Médio</option>
-                            <option value="dificil" <%= questao.nivel_dificuldade === 'dificil' ? 'selected' : '' %>>Difícil</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="area">Área de Conhecimento:</label>
+                    <input type="text" id="area" name="area" required placeholder="Ex: Matemática, Português" value="<%= questao.area %>">
                 </div>
 
                 <div class="form-group">
@@ -491,7 +481,7 @@
             const formData = {
                 enunciado: document.getElementById('enunciado').value,
                 area: document.getElementById('area').value,
-                nivelDificuldade: document.getElementById('nivel').value,
+                nivelDificuldade: 'medio', // Valor padrão
                 opcoes: opcoes,
                 respostaCorreta: parseInt(respostaCorreta.value)
             };

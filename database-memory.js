@@ -6,7 +6,8 @@ class MemoryDatabase {
       questoes: [],
       provas: [],
       prova_questoes: [],
-      nextId: { professores: 1, questoes: 1, provas: 1, prova_questoes: 1 }
+      header_templates: [],
+      nextId: { professores: 1, questoes: 1, provas: 1, prova_questoes: 1, header_templates: 1 }
     };
     this.init();
   }
@@ -35,6 +36,7 @@ class MemoryDatabase {
         resposta_correta: 1,
         area: 'Matemática',
         nivel_dificuldade: 'facil',
+        tipo_questao: 'multipla_escolha',
         professor_id: 1,
         created_at: new Date().toISOString()
       },
@@ -45,6 +47,7 @@ class MemoryDatabase {
         resposta_correta: 2,
         area: 'Matemática',
         nivel_dificuldade: 'medio',
+        tipo_questao: 'multipla_escolha',
         professor_id: 1,
         created_at: new Date().toISOString()
       },
@@ -55,6 +58,7 @@ class MemoryDatabase {
         resposta_correta: 1,
         area: 'Português',
         nivel_dificuldade: 'facil',
+        tipo_questao: 'multipla_escolha',
         professor_id: 1,
         created_at: new Date().toISOString()
       }
@@ -65,6 +69,57 @@ class MemoryDatabase {
     });
 
     this.data.nextId.questoes = 4;
+
+    // Inserir template de cabeçalho de exemplo
+    const templatePadrao = {
+      id: 1,
+      nome: 'Colégio Imaculada Conceição',
+      escola_nome: 'COLÉGIO IMACULADA CONCEIÇÃO - CIC',
+      logo_path: null,
+      campos_personalizados: {
+        'Aluno(a)': 'Aluno(a):',
+        'Professor(a)': 'Professor(a):',
+        'Série': 'Série:',
+        'Data': 'Data:',
+        'Disciplina': 'Disciplina:',
+        'Nota': 'Nota:'
+      },
+      professor_id: 1,
+      ativo: true,
+      created_at: new Date().toISOString()
+    };
+
+    this.data.header_templates.push(templatePadrao);
+    this.data.nextId.header_templates = 2;
+
+    // Inserir prova de exemplo com questões
+    const provaExemplo = {
+      id: 1,
+      titulo: 'Prova de Matemática - Exemplo',
+      disciplina: 'Matemática',
+      descricao: 'Prova de exemplo com questões de matemática básica',
+      tempo_limite: 60,
+      turma_nome: '7º Ano A',
+      texto_personalizado: null,
+      imagem: null,
+      professor_id: 1,
+      tipo: 'manual',
+      created_at: new Date().toISOString()
+    };
+
+    this.data.provas.push(provaExemplo);
+    this.data.nextId.provas = 2;
+
+    // Associar questões à prova de exemplo
+    const provaQuestoes = [
+      { id: 1, prova_id: 1, questao_id: 1, ordem: 1 },
+      { id: 2, prova_id: 1, questao_id: 2, ordem: 2 }
+    ];
+
+    provaQuestoes.forEach(pq => {
+      this.data.prova_questoes.push(pq);
+    });
+    this.data.nextId.prova_questoes = 3;
   }
 
   // Métodos para professores
@@ -140,6 +195,7 @@ class MemoryDatabase {
       resposta_correta: questao.respostaCorreta,
       area: questao.area,
       nivel_dificuldade: questao.nivelDificuldade,
+      tipo_questao: questao.tipo_questao || 'multipla_escolha',
       professor_id: questao.professorId,
       created_at: new Date().toISOString()
     };
@@ -289,6 +345,70 @@ class MemoryDatabase {
     const index = this.data.professores.findIndex(p => p.id === professorIdNum);
     if (index !== -1) {
       this.data.professores.splice(index, 1);
+      return 1;
+    }
+    return 0;
+  }
+
+  // Métodos para templates de cabeçalho
+  addHeaderTemplate(template) {
+    const id = this.data.nextId.header_templates++;
+    const novoTemplate = {
+      id,
+      nome: template.nome,
+      escola_nome: template.escola_nome,
+      logo_path: template.logo_path,
+      campos_personalizados: template.campos_personalizados,
+      professor_id: template.professor_id,
+      ativo: true,
+      created_at: new Date().toISOString()
+    };
+    this.data.header_templates.push(novoTemplate);
+    return id;
+  }
+
+  getHeaderTemplates(professorId) {
+    const professorIdNum = parseInt(professorId);
+    return this.data.header_templates
+      .filter(t => t.professor_id === professorIdNum && t.ativo)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+
+  getHeaderTemplateById(templateId, professorId) {
+    const templateIdNum = parseInt(templateId);
+    const professorIdNum = parseInt(professorId);
+    return this.data.header_templates.find(t => 
+      t.id === templateIdNum && 
+      t.professor_id === professorIdNum && 
+      t.ativo
+    );
+  }
+
+  updateHeaderTemplate(templateId, template) {
+    const templateIdNum = parseInt(templateId);
+    const index = this.data.header_templates.findIndex(t => t.id === templateIdNum);
+    if (index !== -1) {
+      this.data.header_templates[index] = {
+        ...this.data.header_templates[index],
+        nome: template.nome,
+        escola_nome: template.escola_nome,
+        logo_path: template.logo_path,
+        campos_personalizados: template.campos_personalizados
+      };
+      return 1;
+    }
+    return 0;
+  }
+
+  deleteHeaderTemplate(templateId, professorId) {
+    const templateIdNum = parseInt(templateId);
+    const professorIdNum = parseInt(professorId);
+    const index = this.data.header_templates.findIndex(t => 
+      t.id === templateIdNum && 
+      t.professor_id === professorIdNum
+    );
+    if (index !== -1) {
+      this.data.header_templates[index].ativo = false;
       return 1;
     }
     return 0;

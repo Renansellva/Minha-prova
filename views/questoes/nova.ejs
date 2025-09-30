@@ -335,16 +335,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="nivelDificuldade">Nível de Dificuldade:</label>
-                        <select id="nivelDificuldade" name="nivelDificuldade" required>
-                            <option value="facil">Fácil</option>
-                            <option value="medio" selected>Médio</option>
-                            <option value="dificil">Difícil</option>
+                        <label for="tipoQuestao">Tipo de Questão:</label>
+                        <select id="tipoQuestao" name="tipoQuestao" required onchange="toggleTipoQuestao()">
+                            <option value="multipla_escolha">Múltipla Escolha</option>
+                            <option value="questao_aberta">Questão Aberta</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <!-- Opções para Múltipla Escolha -->
+                <div class="form-group" id="opcoes-multipla-escolha">
                     <label>Opções de Resposta:</label>
                     <div class="opcoes-container" id="opcoes-container">
                         <div class="opcao-item">
@@ -376,6 +376,13 @@
                     <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Marque a opção correta com o botão de rádio</p>
                 </div>
 
+                <!-- Campo para Questão Aberta -->
+                <div class="form-group" id="resposta-aberta" style="display: none;">
+                    <label for="respostaEsperada">Resposta Esperada (Opcional):</label>
+                    <textarea id="respostaEsperada" name="respostaEsperada" placeholder="Digite uma resposta de referência ou deixe em branco para aceitar qualquer resposta..."></textarea>
+                    <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Este campo é opcional e serve como referência para correção</p>
+                </div>
+
                 <div class="form-actions">
                     <a href="/questoes" class="btn btn-secondary">Cancelar</a>
                     <button type="button" class="btn btn-secondary" onclick="previewQuestao()">👁️ Visualizar</button>
@@ -396,6 +403,28 @@
 
     <script>
         let totalOpcoes = 4;
+
+        function toggleTipoQuestao() {
+            const tipoQuestao = document.getElementById('tipoQuestao').value;
+            const opcoesMultiplaEscolha = document.getElementById('opcoes-multipla-escolha');
+            const respostaAberta = document.getElementById('resposta-aberta');
+            
+            if (tipoQuestao === 'questao_aberta') {
+                opcoesMultiplaEscolha.style.display = 'none';
+                respostaAberta.style.display = 'block';
+                // Remover required dos campos de múltipla escolha
+                document.querySelectorAll('.opcao-input, input[name="respostaCorreta"]').forEach(input => {
+                    input.removeAttribute('required');
+                });
+            } else {
+                opcoesMultiplaEscolha.style.display = 'block';
+                respostaAberta.style.display = 'none';
+                // Adicionar required de volta aos campos de múltipla escolha
+                document.querySelectorAll('.opcao-input, input[name="respostaCorreta"]').forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+            }
+        }
 
         function adicionarOpcao() {
             const container = document.getElementById('opcoes-container');
@@ -465,11 +494,16 @@
         function previewQuestao() {
             const enunciado = document.getElementById('enunciado').value;
             const area = document.getElementById('area').value;
-            const nivelDificuldade = document.getElementById('nivelDificuldade').value;
+            const tipoQuestao = document.getElementById('tipoQuestao').value;
             const respostaCorreta = document.querySelector('input[name="respostaCorreta"]:checked');
             
-            if (!enunciado || !area || !respostaCorreta) {
+            if (!enunciado || !area) {
                 alert('Por favor, preencha todos os campos obrigatórios antes de visualizar.');
+                return;
+            }
+            
+            if (tipoQuestao === 'multipla_escolha' && !respostaCorreta) {
+                alert('Por favor, marque a resposta correta para questões de múltipla escolha.');
                 return;
             }
             
@@ -485,19 +519,37 @@
                 }
             });
             
-            const previewHTML = `
+            let previewHTML = `
                 <div class="preview-enunciado">
-                    <strong>${area} - ${nivelDificuldade.charAt(0).toUpperCase() + nivelDificuldade.slice(1)}</strong><br><br>
+                    <strong>${area} - ${tipoQuestao === 'multipla_escolha' ? 'Múltipla Escolha' : 'Questão Aberta'}</strong><br><br>
                     ${enunciado}
                 </div>
-                <ul class="preview-opcoes">
-                    ${opcoes.map(opcao => `
-                        <li class="${opcao.correta ? 'correta' : ''}">
-                            ${opcao.letra}) ${opcao.texto} ${opcao.correta ? '✓' : ''}
-                        </li>
-                    `).join('')}
-                </ul>
             `;
+            
+            if (tipoQuestao === 'multipla_escolha') {
+                previewHTML += `
+                    <ul class="preview-opcoes">
+                        ${opcoes.map(opcao => `
+                            <li class="${opcao.correta ? 'correta' : ''}">
+                                ${opcao.letra}) ${opcao.texto} ${opcao.correta ? '✓' : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            } else {
+                const respostaEsperada = document.getElementById('respostaEsperada').value;
+                previewHTML += `
+                    <div style="background: #f8f9fa; border: 2px dashed #e1e5e9; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                        <p style="margin: 0; color: #666; font-style: italic;">📝 Espaço para resposta do aluno</p>
+                        ${respostaEsperada ? `
+                            <div style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 5px; border-left: 4px solid #28a745;">
+                                <strong>Resposta de referência:</strong><br>
+                                ${respostaEsperada}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
             
             document.getElementById('preview-questao').innerHTML = previewHTML;
             document.getElementById('preview-section').style.display = 'block';
@@ -509,33 +561,45 @@
             
             const enunciado = document.getElementById('enunciado').value;
             const area = document.getElementById('area').value;
-            const nivelDificuldade = document.getElementById('nivelDificuldade').value;
+            const tipoQuestao = document.getElementById('tipoQuestao').value;
             const respostaCorreta = document.querySelector('input[name="respostaCorreta"]:checked');
             
-            if (!respostaCorreta) {
-                alert('Por favor, marque a resposta correta.');
-                return;
-            }
+            let opcoes = [];
+            let respostaCorretaValue = 0;
             
-            const opcoes = [];
-            const opcoesInputs = document.querySelectorAll('.opcao-input');
-            opcoesInputs.forEach(input => {
-                if (input.value.trim()) {
-                    opcoes.push(input.value.trim());
+            if (tipoQuestao === 'multipla_escolha') {
+                if (!respostaCorreta) {
+                    alert('Por favor, marque a resposta correta.');
+                    return;
                 }
-            });
-            
-            if (opcoes.length < 2) {
-                alert('É necessário ter pelo menos 2 opções de resposta.');
-                return;
+                
+                const opcoesInputs = document.querySelectorAll('.opcao-input');
+                opcoesInputs.forEach(input => {
+                    if (input.value.trim()) {
+                        opcoes.push(input.value.trim());
+                    }
+                });
+                
+                if (opcoes.length < 2) {
+                    alert('É necessário ter pelo menos 2 opções de resposta.');
+                    return;
+                }
+                
+                respostaCorretaValue = parseInt(respostaCorreta.value);
+            } else {
+                // Para questões abertas, usar a resposta esperada como opção
+                const respostaEsperada = document.getElementById('respostaEsperada').value;
+                opcoes = [respostaEsperada || 'Resposta aberta'];
+                respostaCorretaValue = 0;
             }
             
             const data = {
                 enunciado,
                 opcoes: JSON.stringify(opcoes),
-                respostaCorreta: parseInt(respostaCorreta.value),
+                respostaCorreta: respostaCorretaValue,
                 area,
-                nivelDificuldade
+                nivelDificuldade: 'medio', // Valor padrão
+                tipo_questao: tipoQuestao
             };
             
             try {
