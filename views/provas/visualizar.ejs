@@ -286,6 +286,57 @@
             font-size: 0.9em;
             color: #666;
         }
+        /* Compactação para impressão */
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            html, body { background: white !important; }
+            body { margin: 0 !important; padding: 0 !important; }
+            .header, .page-header, .actions-section { display: none !important; }
+            .container { max-width: 100% !important; padding: 0 !important; }
+            .prova-container { box-shadow: none !important; padding: 8mm !important; margin: 0 !important; border: none !important; }
+            /* Manter cabeçalho da prova visível, porém compacto */
+            .prova-header, .prova-header-custom { display: block !important; border: none !important; margin: 0 0 6px 0 !important; padding: 0 0 6px 0 !important; }
+            .prova-header-custom .header-custom-top { padding: 6px 8px !important; }
+            .prova-header-custom .campos-custom { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
+            .prova-title { font-size: 16px !important; margin: 0 0 6px 0 !important; }
+            /* Esconder título textual da prova na impressão (ex.: nome como 'natan') */
+            .prova-title { display: none !important; }
+            .prova-info { gap: 6px !important; margin-bottom: 6px !important; }
+            .info-item { background: transparent !important; border: none !important; padding: 4px 6px !important; }
+            .info-label { font-size: 10px !important; }
+            .info-value { font-size: 11px !important; }
+            .header-custom-top { padding: 6px 8px !important; margin-bottom: 6px !important; }
+            .escola-nome-custom { font-size: 12px !important; }
+            .logo-custom { width: 32px !important; height: 32px !important; }
+            .campos-custom { gap: 6px !important; grid-template-columns: repeat(2, 1fr) !important; }
+            .campo-custom { padding: 6px 8px !important; }
+
+            /* Questões compactas */
+            .questoes { margin-top: 6px !important; }
+            .questao { background: transparent !important; border: 1px solid #bbb !important; border-radius: 6px !important; padding: 8px !important; margin-bottom: 8px !important; page-break-inside: avoid !important; }
+            .questao-header { margin-bottom: 6px !important; }
+            .questao-numero { font-size: 12px !important; }
+            .questao-area { display: none !important; }
+            .questao-enunciado { font-size: 12px !important; line-height: 1.35 !important; margin-bottom: 8px !important; }
+            .questao-info { display: none !important; }
+
+            /* Alternativas em duas colunas e mais compactas */
+            .opcoes { columns: 2 !important; column-gap: 10px !important; padding: 0 !important; margin: 0 !important; }
+            .opcao { break-inside: avoid-column !important; background: transparent !important; border: 1px solid #ccc !important; border-radius: 4px !important; padding: 6px 8px !important; margin-bottom: 6px !important; font-size: 11px !important; }
+            .opcao.correta { background: transparent !important; border-color: #ccc !important; font-weight: normal !important; }
+
+            /* Ocultar descrição da prova na impressão para economizar espaço */
+            .prova-descricao { display: none !important; }
+
+            /* QR code menor ou oculto para poupar espaço */
+            /* Mostrar QR na impressão de forma compacta */
+            .qr-section { display: block !important; page-break-inside: avoid !important; margin: 6px 0 8px 0 !important; padding: 6px !important; border: 1px solid #bbb !important; border-radius: 6px !important; }
+            #qr-prova { display: block !important; }
+            .qr-code, .qr-code img, #qr-prova img { max-width: 70px !important; max-height: 70px !important; }
+
+            /* Imagens compactas */
+            img { max-height: 140px !important; }
+        }
     </style>
 </head>
 <body>
@@ -374,15 +425,22 @@
                             <div class="info-label">❓ Questões</div>
                             <div class="info-value"><%= questoes.length %></div>
                         </div>
-                        <% if (prova.tempo_limite) { %>
+                        
                         <div class="info-item">
-                            <div class="info-label">⏱️ Tempo</div>
-                            <div class="info-value"><%= prova.tempo_limite %> min</div>
+                            <div class="info-label">👨‍🏫 Professor</div>
+                            <div class="info-value"><%= professor.nome %></div>
                         </div>
-                        <% } %>
+                        <div class="info-item">
+                            <div class="info-label">👤 Aluno</div>
+                            <div class="info-value">________________________</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">📅 Data</div>
+                            <div class="info-value"><%= new Date().toLocaleDateString('pt-BR') %></div>
+                        </div>
                     </div>
                     <% if (prova.descricao) { %>
-                    <p style="color: #666; font-style: italic;"><%= prova.descricao %></p>
+                    <p class="prova-descricao" style="color: #666; font-style: italic;"><%= prova.descricao %></p>
                     <% } %>
 
                     <% if (prova.imagem) { %>
@@ -401,7 +459,7 @@
             <% } %>
             
             <!-- QR Code único da prova -->
-            <div style="text-align: center; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 2px solid #e1e5e9;">
+            <div class="qr-section" style="text-align: center; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 2px solid #e1e5e9;">
                 <h4 style="margin: 0 0 15px 0; color: #333;">📱 Código QR da Prova</h4>
                 <div id="qr-prova" class="qr-placeholder">
                     <div style="width: 150px; height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 auto;">
