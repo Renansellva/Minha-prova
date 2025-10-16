@@ -161,6 +161,16 @@ class MemoryDatabase {
     return this.data.professores.find(p => p.id === idNum);
   }
 
+  // Atualizar foto do professor
+  updateProfessorFoto(professorId, fotoPath) {
+    const professor = this.data.professores.find(p => p.id === parseInt(professorId));
+    if (professor) {
+      professor.foto = fotoPath;
+      return Promise.resolve({ id: professorId });
+    }
+    return Promise.reject(new Error('Professor não encontrado'));
+  }
+
   getAllProfessores() {
     return this.data.professores.map(p => ({
       id: p.id,

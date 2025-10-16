@@ -67,6 +67,33 @@ const upload = multer({
   }
 });
 
+// Configuração específica para upload de fotos de perfil
+const profilePhotoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = 'public/uploads/profiles/';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = uuidv4() + '_' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
+const profilePhotoUpload = multer({
+  storage: profilePhotoStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB para fotos
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos de imagem são permitidos'), false);
+    }
+  }
+});
+
 // Criar diretório uploads se não existir
 const createUploadsDir = async () => {
   try {
@@ -276,7 +303,8 @@ app.get('/dashboard', requireAuth, async (req, res) => {
       professor: {
         id: req.session.professorId,
         nome: req.session.professorNome,
-        email: professorAtual.email
+        email: professorAtual.email,
+        foto: professorAtual.foto || null
       },
       stats,
       provasRecentes
@@ -284,6 +312,135 @@ app.get('/dashboard', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('Erro no dashboard:', error);
     res.status(500).send('Erro interno do servidor');
+  }
+});
+
+// Perfil do usuário
+app.get('/perfil', requireAuth, async (req, res) => {
+  try {
+    const professorId = req.session.professorId;
+    
+    // Buscar dados do professor
+    const professor = await db.getProfessorById(professorId);
+    
+    // Buscar estatísticas detalhadas
+    const provas = await db.getProvas(professorId);
+    const questoes = await db.getQuestoes(professorId);
+    const templates = await db.getHeaderTemplates(professorId);
+    
+    // Estatísticas por área
+    const areasStats = {};
+    questoes.forEach(questao => {
+      if (!areasStats[questao.area]) {
+        areasStats[questao.area] = {
+          total: 0,
+          multiplaEscolha: 0,
+          abertas: 0
+        };
+      }
+      areasStats[questao.area].total++;
+      if (questao.tipo_questao === 'questao_aberta') {
+        areasStats[questao.area].abertas++;
+      } else {
+        areasStats[questao.area].multiplaEscolha++;
+      }
+    });
+    
+    // Provas recentes
+    const provasRecentes = provas.slice(0, 3);
+    
+    // Questões recentes
+    const questoesRecentes = questoes.slice(0, 5);
+    
+    res.render('perfil', {
+      professor: {
+        id: professor.id,
+        nome: professor.nome,
+        email: professor.email,
+        foto: professor.foto || null,
+        created_at: professor.created_at
+      },
+      stats: {
+        totalProvas: provas.length,
+        totalQuestoes: questoes.length,
+        totalTemplates: templates.length,
+        areasStats: areasStats
+      },
+      provasRecentes,
+      questoesRecentes
+    });
+  } catch (error) {
+    console.error('Erro ao carregar perfil:', error);
+    res.status(500).send('Erro interno do servidor');
+  }
+});
+
+// Upload de foto de perfil
+app.post('/perfil/foto', requireAuth, (req, res, next) => {
+  profilePhotoUpload.single('foto')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.json({ success: false, message: 'Arquivo muito grande. Máximo 5MB.' });
+      }
+      return res.json({ success: false, message: 'Erro no upload: ' + err.message });
+    } else if (err) {
+      return res.json({ success: false, message: 'Erro no upload: ' + err.message });
+    }
+    next();
+  });
+}, async (req, res) => {
+  try {
+    const professorId = req.session.professorId;
+    
+    if (!req.file) {
+      return res.json({ success: false, message: 'Nenhuma foto foi enviada' });
+    }
+    
+    // Salvar caminho da foto no banco
+    const fotoPath = `/uploads/profiles/${req.file.filename}`;
+    await db.updateProfessorFoto(professorId, fotoPath);
+    
+    res.json({ 
+      success: true, 
+      message: 'Foto atualizada com sucesso!',
+      fotoPath: fotoPath
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar foto:', error);
+    res.json({ success: false, message: 'Erro ao atualizar foto' });
+  }
+});
+
+// Atualizar dados do perfil
+app.post('/perfil/atualizar', requireAuth, async (req, res) => {
+  try {
+    const professorId = req.session.professorId;
+    const { nome, email } = req.body;
+    
+    // Validar dados
+    if (!nome || !email) {
+      return res.json({ success: false, message: 'Nome e email são obrigatórios' });
+    }
+    
+    // Verificar se o email já existe para outro usuário
+    const professorExistente = await db.getProfessorByEmail(email);
+    if (professorExistente && professorExistente.id !== parseInt(professorId)) {
+      return res.json({ success: false, message: 'Este email já está em uso por outro usuário' });
+    }
+    
+    // Atualizar dados
+    await db.updateProfessor(professorId, { nome, email });
+    
+    // Atualizar sessão
+    req.session.professorNome = nome;
+    
+    res.json({ 
+      success: true, 
+      message: 'Dados atualizados com sucesso!'
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar dados:', error);
+    res.json({ success: false, message: 'Erro ao atualizar dados' });
   }
 });
 

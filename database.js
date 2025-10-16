@@ -194,6 +194,17 @@ class Database {
       }
     });
 
+    // Migração: Adicionar coluna foto na tabela professores se não existir
+    this.db.run(`
+      ALTER TABLE professores ADD COLUMN foto TEXT
+    `, (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.error('Erro na migração foto professores:', err);
+      } else {
+        console.log('✅ Migração: Coluna foto adicionada na tabela professores ou já existe');
+      }
+    });
+
     // Migração: Criar tabela header_templates se não existir
     this.db.run(`
       CREATE TABLE IF NOT EXISTS header_templates (
@@ -494,6 +505,31 @@ class Database {
         (err, row) => {
           if (err) reject(err);
           else resolve(row);
+        }
+      );
+    });
+  }
+
+  // Atualizar foto do professor
+  updateProfessorFoto(professorId, fotoPath) {
+    return new Promise((resolve, reject) => {
+      this.db.run('UPDATE professores SET foto = ? WHERE id = ?', [fotoPath, professorId], function(err) {
+        if (err) reject(err);
+        else resolve({ id: this.lastID });
+      });
+    });
+  }
+
+  // Atualizar dados do professor
+  updateProfessor(professorId, dados) {
+    return new Promise((resolve, reject) => {
+      const { nome, email } = dados;
+      this.db.run(
+        'UPDATE professores SET nome = ?, email = ? WHERE id = ?',
+        [nome, email, professorId],
+        function(err) {
+          if (err) reject(err);
+          else resolve({ id: this.lastID });
         }
       );
     });

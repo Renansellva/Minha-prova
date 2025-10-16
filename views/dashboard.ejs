@@ -39,6 +39,37 @@
             gap: 15px;
         }
 
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .profile-link:hover {
+            background-color: #f8f9fa;
+            color: #667eea;
+        }
+
+        .profile-icon {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
         .user-avatar {
             width: 40px;
             height: 40px;
@@ -49,6 +80,14 @@
             justify-content: center;
             color: white;
             font-weight: bold;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
         .logout-btn {
@@ -254,11 +293,21 @@
         <div class="header-content">
             <div class="logo">📚 Minha Prova</div>
             <div class="user-info">
-                <div class="user-avatar"><%= professor.nome.charAt(0).toUpperCase() %></div>
-                <div>
-                    <div style="font-weight: 600;"><%= professor.nome %></div>
-                    <div style="font-size: 0.8em; color: #666;"><%= professor.email %></div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div>
+                        <div style="font-weight: 600;"><%= professor.nome %></div>
+                    </div>
                 </div>
+                <a href="/perfil" class="profile-link">
+                    <div class="profile-icon">
+                        <% if (professor.foto) { %>
+                            <img src="<%= professor.foto %>" alt="Foto do perfil" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                        <% } else { %>
+                            👤
+                        <% } %>
+                    </div>
+                    <span style="color: #333; font-weight: 500;">Meu Perfil</span>
+                </a>
                 <a href="/logout" class="logout-btn">Sair</a>
             </div>
         </div>
@@ -266,8 +315,10 @@
 
     <div class="container">
         <div class="welcome-section">
-            <h1 class="welcome-title">Bem-vindo, <%= professor.nome %>!</h1>
-            <p class="welcome-subtitle">Gerencie suas provas e questões de forma simples e eficiente.</p>
+            <div>
+                <h1 class="welcome-title">Bem-vindo, <%= professor.nome %>!</h1>
+                <p class="welcome-subtitle">Gerencie suas provas e questões de forma simples e eficiente.</p>
+            </div>
         </div>
 
         <div class="stats-grid">

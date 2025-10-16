@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Minha Prova</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .profile-link:hover {
+            background-color: #f8f9fa;
+            color: #667eea;
+        }
+
+        .profile-icon {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        .breadcrumb-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb-separator {
+            margin: 0 10px;
+            color: #666;
+        }
+
+        .breadcrumb-current {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            border: 4px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .upload-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            color: white;
+            font-size: 0.8em;
+            text-align: center;
+        }
+
+        .profile-avatar:hover .upload-overlay {
+            opacity: 1;
+        }
+
+        .profile-details h1 {
+            font-size: 2.5em;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
+
+        .profile-details p {
+            font-size: 1.2em;
+            margin: 0 0 5px 0;
+            opacity: 0.9;
+        }
+
+        .profile-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: white;
+        }
+
+        .stat-icon.provas { background: #667eea; }
+        .stat-icon.questoes { background: #ffc107; color: #333; }
+        .stat-icon.templates { background: #28a745; }
+        .stat-icon.areas { background: #17a2b8; }
+
+        .stat-content h3 {
+            margin: 0;
+            font-size: 2em;
+            color: #333;
+        }
+
+        .stat-content p {
+            margin: 5px 0 0 0;
+            color: #666;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .areas-stats {
+            display: grid;
+            gap: 15px;
+        }
+
+        .area-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .area-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .area-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+
+        .area-stat {
+            background: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: #666;
+        }
+
+        .area-stat.total { background: #e3f2fd; color: #1976d2; }
+        .area-stat.multipla { background: #e8f5e8; color: #2e7d32; }
+        .area-stat.aberta { background: #fff3e0; color: #f57c00; }
+
+        .recent-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+
+        .recent-info h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .recent-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .recent-date {
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        .quick-actions {
+            display: grid;
+            gap: 15px;
+        }
+
+        .action-btn {
+            background: white;
+            border: 2px solid #e1e5e9;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .action-icon {
+            font-size: 1.5em;
+            color: #667eea;
+        }
+
+        .action-text {
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .edit-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .edit-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .file-input-label:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #e1e5e9;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5em;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">📚 Minha Prova</div>
+            <div class="user-info">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div>
+                        <div style="font-weight: 600;"><%= professor.nome %></div>
+                    </div>
+                </div>
+                <a href="/perfil" class="profile-link">
+                    <div class="profile-icon">
+                        <% if (professor.foto) { %>
+                            <img src="<%= professor.foto %>" alt="Foto do perfil" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                        <% } else { %>
+                            👤
+                        <% } %>
+                    </div>
+                    <span style="color: #333; font-weight: 500;">Meu Perfil</span>
+                </a>
+                <a href="/logout" class="logout-btn">Sair</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="/dashboard" class="breadcrumb-link">🏠 Dashboard</a>
+            <span class="breadcrumb-separator">›</span>
+            <span class="breadcrumb-current">👤 Meu Perfil</span>
+        </div>
+
+        <div class="profile-header">
+            <div class="profile-info">
+                <div class="profile-avatar" onclick="openPhotoModal()">
+                    <% if (professor.foto) { %>
+                        <img src="<%= professor.foto %>" alt="Foto do perfil">
+                    <% } else { %>
+                        <%= professor.nome.charAt(0).toUpperCase() %>
+                    <% } %>
+                    <div class="upload-overlay">
+                        📷<br>Alterar Foto
+                    </div>
+                </div>
+                <div class="profile-details">
+                    <h1><%= professor.nome %></h1>
+                    <p>📧 <%= professor.email %></p>
+                    <p>📅 Membro desde <%= new Date(professor.created_at).toLocaleDateString('pt-BR') %></p>
+                    <% if (professor.email === 'admin@escola.com') { %>
+                        <div class="profile-badge">👑 Administrador</div>
+                    <% } else { %>
+                        <div class="profile-badge">👨‍🏫 Professor</div>
+                    <% } %>
+                    <button class="edit-btn" onclick="openEditModal()" style="margin-top: 15px;">
+                        ✏️ Editar Dados
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon provas">📝</div>
+                <div class="stat-content">
+                    <h3><%= stats.totalProvas %></h3>
+                    <p>Provas Criadas</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon questoes">❓</div>
+                <div class="stat-content">
+                    <h3><%= stats.totalQuestoes %></h3>
+                    <p>Questões Disponíveis</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon templates">📋</div>
+                <div class="stat-content">
+                    <h3><%= stats.totalTemplates %></h3>
+                    <p>Templates de Cabeçalho</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon areas">📚</div>
+                <div class="stat-content">
+                    <h3><%= Object.keys(stats.areasStats).length %></h3>
+                    <p>Áreas de Conhecimento</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="main-content">
+                <!-- Estatísticas por Área -->
+                <div class="card">
+                    <h2 class="card-title">📊 Estatísticas por Área</h2>
+                    <% if (Object.keys(stats.areasStats).length > 0) { %>
+                        <div class="areas-stats">
+                            <% Object.entries(stats.areasStats).forEach(([area, data]) => { %>
+                                <div class="area-item">
+                                    <div class="area-name"><%= area %></div>
+                                    <div class="area-stats">
+                                        <span class="area-stat total"><%= data.total %> total</span>
+                                        <span class="area-stat multipla"><%= data.multiplaEscolha %> múltipla</span>
+                                        <span class="area-stat aberta"><%= data.abertas %> abertas</span>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📚</div>
+                            <h3>Nenhuma questão criada ainda</h3>
+                            <p>Crie sua primeira questão para ver as estatísticas por área.</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Provas Recentes -->
+                <div class="card">
+                    <h2 class="card-title">📝 Provas Recentes</h2>
+                    <% if (provasRecentes && provasRecentes.length > 0) { %>
+                        <% provasRecentes.forEach(prova => { %>
+                            <div class="recent-item">
+                                <div class="recent-info">
+                                    <h4><%= prova.titulo %></h4>
+                                    <p><%= prova.disciplina %> - <%= prova.turma_nome %> - <%= prova.total_questoes %> questões</p>
+                                </div>
+                                <div class="recent-date">
+                                    <%= new Date(prova.created_at).toLocaleDateString('pt-BR') %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <h3>Nenhuma prova criada ainda</h3>
+                            <p>Crie sua primeira prova para começar a usar o sistema.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <!-- Questões Recentes -->
+                <div class="card">
+                    <h2 class="card-title">❓ Questões Recentes</h2>
+                    <% if (questoesRecentes && questoesRecentes.length > 0) { %>
+                        <% questoesRecentes.forEach(questao => { %>
+                            <div class="recent-item">
+                                <div class="recent-info">
+                                    <h4><%= questao.enunciado.substring(0, 50) %>...</h4>
+                                    <p><%= questao.area %> - <%= questao.tipo_questao === 'questao_aberta' ? 'Aberta' : 'Múltipla' %></p>
+                                </div>
+                                <div class="recent-date">
+                                    <%= new Date(questao.created_at).toLocaleDateString('pt-BR') %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">❓</div>
+                            <h3>Nenhuma questão criada ainda</h3>
+                            <p>Crie sua primeira questão para começar.</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Ações Rápidas -->
+                <div class="card">
+                    <h2 class="card-title">🚀 Ações Rápidas</h2>
+                    <div class="quick-actions">
+                        <a href="/templates-cabecalho/novo" class="action-btn">
+                            <div class="action-icon">➕</div>
+                            <div class="action-text">Nova Prova</div>
+                        </a>
+                        <a href="/questoes/nova" class="action-btn">
+                            <div class="action-icon">❓</div>
+                            <div class="action-text">Nova Questão</div>
+                        </a>
+                        <a href="/questoes" class="action-btn">
+                            <div class="action-icon">📋</div>
+                            <div class="action-text">Banco de Questões</div>
+                        </a>
+                        <a href="/provas" class="action-btn">
+                            <div class="action-icon">📚</div>
+                            <div class="action-text">Minhas Provas</div>
+                        </a>
+                        <% if (professor.email === 'admin@escola.com') { %>
+                        <a href="/usuarios" class="action-btn">
+                            <div class="action-icon">👥</div>
+                            <div class="action-text">Gerenciar Usuários</div>
+                        </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Upload de Foto -->
+    <div id="photoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📷 Alterar Foto do Perfil</h3>
+                <span class="close" onclick="closePhotoModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="photoAlert" class="alert" style="display: none;"></div>
+                <div class="form-group">
+                    <label for="fotoInput">Selecione uma nova foto:</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="fotoInput" class="file-input" accept="image/*" onchange="previewPhoto()">
+                        <label for="fotoInput" class="file-input-label">
+                            📁 Clique para selecionar uma foto
+                        </label>
+                    </div>
+                </div>
+                <div id="photoPreview" style="display: none; text-align: center; margin-top: 20px;">
+                    <img id="previewImg" style="max-width: 200px; max-height: 200px; border-radius: 50%; border: 3px solid #667eea;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closePhotoModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="uploadPhoto()" id="uploadBtn" disabled>Enviar Foto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Dados -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Editar Dados do Perfil</h3>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="editAlert" class="alert" style="display: none;"></div>
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="nomeInput">Nome:</label>
+                        <input type="text" id="nomeInput" value="<%= professor.nome %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="emailInput">Email:</label>
+                        <input type="email" id="emailInput" value="<%= professor.email %>" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="updateProfile()">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let selectedFile = null;
+
+        // Funções para o modal de foto
+        function openPhotoModal() {
+            document.getElementById('photoModal').style.display = 'block';
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').style.display = 'none';
+            document.getElementById('fotoInput').value = '';
+            document.getElementById('photoPreview').style.display = 'none';
+            document.getElementById('uploadBtn').disabled = true;
+            selectedFile = null;
+            hideAlert('photoAlert');
+        }
+
+        function previewPhoto() {
+            const file = document.getElementById('fotoInput').files[0];
+            if (file) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('photoPreview').style.display = 'block';
+                    document.getElementById('uploadBtn').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function uploadPhoto() {
+            if (!selectedFile) return;
+
+            const formData = new FormData();
+            formData.append('foto', selectedFile);
+
+            try {
+                const response = await fetch('/perfil/foto', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('photoAlert', result.message, 'success');
+                    // Atualizar a foto na página
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showAlert('photoAlert', result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('photoAlert', 'Erro ao enviar foto. Tente novamente.', 'error');
+            }
+        }
+
+        // Funções para o modal de edição
+        function openEditModal() {
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            hideAlert('editAlert');
+        }
+
+        async function updateProfile() {
+            const nome = document.getElementById('nomeInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+
+            if (!nome || !email) {
+                showAlert('editAlert', 'Nome e email são obrigatórios.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/perfil/atualizar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ nome, email })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('editAlert', result.message, 'success');
+                    // Atualizar os dados na página
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showAlert('editAlert', result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('editAlert', 'Erro ao atualizar dados. Tente novamente.', 'error');
+            }
+        }
+
+        // Funções auxiliares
+        function showAlert(elementId, message, type) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+        }
+
+        function hideAlert(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        // Fechar modais ao clicar fora
+        window.onclick = function(event) {
+            const photoModal = document.getElementById('photoModal');
+            const editModal = document.getElementById('editModal');
+            
+            if (event.target === photoModal) {
+                closePhotoModal();
+            }
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+        }
+
+        // Fechar modais com ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePhotoModal();
+                closeEditModal();
+            }
+        });
+    </script>
+</body>
+</html>
+
