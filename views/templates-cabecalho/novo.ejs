@@ -1356,10 +1356,12 @@
                     })
                 });
                 
-                const result = await response.json();
-                return result.success ? result.qrCode : '';
+                // Processar resposta de forma segura
+                const resultado = await processarRespostaAPI(response, 'Gerar QR code');
+                return resultado.data && resultado.data.success ? resultado.data.qrCode : '';
             } catch (error) {
                 console.error('Erro ao gerar QR code do gabarito:', error);
+                // Em caso de erro, apenas retornar vazio (QR code é opcional)
                 return '';
             }
         }
@@ -1378,6 +1380,49 @@
                     opcoes: opcoes
                 };
             });
+        }
+
+        // Função auxiliar para processar resposta de API de forma segura
+        async function processarRespostaAPI(response, descricao = 'Requisição') {
+            // Clonar a resposta para poder ler múltiplas vezes se necessário
+            const clonedResponse = response.clone();
+            const contentType = response.headers.get('content-type') || '';
+            
+            // Verificar se é JSON
+            if (contentType.includes('application/json')) {
+                try {
+                    const data = await response.json();
+                    return { success: true, data };
+                } catch (error) {
+                    // Mesmo sendo JSON, pode ter erro ao fazer parse - ler como texto do clone
+                    const text = await clonedResponse.text();
+                    console.error(`${descricao} - Erro ao fazer parse JSON:`, error);
+                    console.error(`${descricao} - Resposta recebida (primeiros 500 chars):`, text.substring(0, 500));
+                    console.error(`${descricao} - Status:`, response.status);
+                    console.error(`${descricao} - URL:`, response.url);
+                    
+                    // Se for HTML, foi retornado HTML em vez de JSON
+                    if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+                        throw new Error(`Servidor retornou HTML em vez de JSON (Status: ${response.status}). Isso geralmente indica erro de autenticação ou erro no servidor. Verifique o console para mais detalhes.`);
+                    }
+                    
+                    throw new Error(`Erro ao processar resposta JSON: ${error.message}. Resposta: ${text.substring(0, 200)}`);
+                }
+            } else {
+                // Não é JSON, ler como texto
+                const text = await response.text();
+                console.error(`${descricao} - Resposta não é JSON (Content-Type: ${contentType}):`);
+                console.error(`${descricao} - Resposta recebida (primeiros 500 chars):`, text.substring(0, 500));
+                console.error(`${descricao} - Status:`, response.status);
+                console.error(`${descricao} - URL:`, response.url);
+                
+                // Se for HTML, pode ser página de erro ou redirecionamento
+                if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+                    throw new Error(`Servidor retornou HTML em vez de JSON (Status: ${response.status}). Isso geralmente indica erro de autenticação ou erro no servidor. Verifique o console para mais detalhes.`);
+                }
+                
+                throw new Error(`Resposta inválida do servidor: ${response.status} - ${response.statusText}`);
+            }
         }
 
         // Função para salvar como prova completa
@@ -1457,10 +1502,12 @@
                     body: templateData
                 });
                 
-                const templateResult = await templateResponse.json();
+                // Processar resposta de forma segura
+                const templateResultado = await processarRespostaAPI(templateResponse, 'Salvar template');
                 
-                if (!templateResult.success) {
-                    alert('Erro ao salvar template: ' + templateResult.message);
+                if (!templateResultado.success || !templateResultado.data || !templateResultado.data.success) {
+                    const mensagemErro = templateResultado.data?.message || 'Erro desconhecido ao salvar template';
+                    alert('Erro ao salvar template: ' + mensagemErro);
                     return;
                 }
                 
@@ -1488,17 +1535,12 @@
                         body: JSON.stringify(questaoData)
                     });
                     
-                    // Verificar se a resposta é JSON antes de fazer parse
-                    const contentTypeQuestao = questaoResponse.headers.get('content-type');
-                    if (contentTypeQuestao && contentTypeQuestao.includes('application/json')) {
-                        const questaoResult = await questaoResponse.json();
-                        if (questaoResult.success) {
-                            questoesIds.push(questaoResult.questaoId);
-                        }
+                    // Processar resposta de forma segura
+                    const questaoResultado = await processarRespostaAPI(questaoResponse, 'Criar questão');
+                    if (questaoResultado.success && questaoResultado.data.success) {
+                        questoesIds.push(questaoResultado.data.questaoId);
                     } else {
-                        const errorText = await questaoResponse.text();
-                        console.error('Erro ao criar questão - Resposta não é JSON:', errorText);
-                        throw new Error('Erro ao criar questão: resposta inválida do servidor');
+                        throw new Error(questaoResultado.data?.message || 'Erro ao criar questão');
                     }
                 }
                 
@@ -1519,28 +1561,21 @@
                     body: formData
                 });
                 
-                // Verificar se a resposta é JSON antes de fazer parse
-                const contentType = provaResponse.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const errorText = await provaResponse.text();
-                    console.error('Erro ao salvar prova - Resposta não é JSON:', errorText);
-                    console.error('Status da resposta:', provaResponse.status);
-                    console.error('URL da requisição:', provaResponse.url);
-                    throw new Error(`Erro ao salvar prova: servidor retornou HTML em vez de JSON (Status: ${provaResponse.status}). Verifique o console para mais detalhes.`);
-                }
+                // Processar resposta de forma segura
+                const provaResultado = await processarRespostaAPI(provaResponse, 'Salvar prova');
                 
-                const provaResult = await provaResponse.json();
-                
-                if (provaResult && provaResult.success) {
+                if (provaResultado.success && provaResultado.data && provaResultado.data.success) {
                     alert('✅ Prova completa salva com sucesso!\n\n📋 Template de cabeçalho salvo\n❓ Questões criadas\n📝 Prova completa criada\n\nAgora você pode acessar em "Provas" para visualizar e gerar para alunos.');
                     window.location.href = '/provas';
                 } else {
-                    alert('Erro ao criar prova: ' + (provaResult?.message || 'Erro desconhecido'));
+                    const mensagemErro = provaResultado.data?.message || 'Erro desconhecido';
+                    alert('Erro ao criar prova: ' + mensagemErro);
                 }
                 
             } catch (error) {
                 console.error('Erro ao salvar prova completa:', error);
-                alert('Erro ao salvar prova completa. Tente novamente.');
+                const mensagemErro = error.message || 'Erro desconhecido ao salvar prova completa';
+                alert(`❌ Erro ao salvar prova completa:\n\n${mensagemErro}\n\nPor favor, verifique o console (F12) para mais detalhes.`);
             }
         }
 
