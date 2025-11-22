@@ -1488,38 +1488,54 @@
                         body: JSON.stringify(questaoData)
                     });
                     
-                    const questaoResult = await questaoResponse.json();
-                    if (questaoResult.success) {
-                        questoesIds.push(questaoResult.questaoId);
+                    // Verificar se a resposta é JSON antes de fazer parse
+                    const contentTypeQuestao = questaoResponse.headers.get('content-type');
+                    if (contentTypeQuestao && contentTypeQuestao.includes('application/json')) {
+                        const questaoResult = await questaoResponse.json();
+                        if (questaoResult.success) {
+                            questoesIds.push(questaoResult.questaoId);
+                        }
+                    } else {
+                        const errorText = await questaoResponse.text();
+                        console.error('Erro ao criar questão - Resposta não é JSON:', errorText);
+                        throw new Error('Erro ao criar questão: resposta inválida do servidor');
                     }
                 }
                 
                 // Finalmente, criar a prova completa
-                const provaData = {
-                    titulo: nomeTemplate,
-                    disciplina: 'Prova Completa',
-                    descricao: '',
-                    tempoLimite: 90,
-                    turma_nome: 'Geral',
-                    textoPersonalizado: `Cabeçalho personalizado: ${escolaNome}`,
-                    questoesIds: questoesIds
-                };
+                // Usar FormData porque a rota espera multer (upload de imagem)
+                const formData = new FormData();
+                formData.append('titulo', nomeTemplate);
+                formData.append('disciplina', 'Prova Completa');
+                formData.append('descricao', '');
+                formData.append('tempoLimite', '90');
+                formData.append('turma_nome', 'Geral');
+                formData.append('textoPersonalizado', `Cabeçalho personalizado: ${escolaNome}`);
+                formData.append('questoesIds', JSON.stringify(questoesIds));
                 
                 const provaResponse = await fetch('/api/provas', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(provaData)
+                    // NÃO definir Content-Type manualmente - o navegador faz isso automaticamente para FormData
+                    body: formData
                 });
+                
+                // Verificar se a resposta é JSON antes de fazer parse
+                const contentType = provaResponse.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const errorText = await provaResponse.text();
+                    console.error('Erro ao salvar prova - Resposta não é JSON:', errorText);
+                    console.error('Status da resposta:', provaResponse.status);
+                    console.error('URL da requisição:', provaResponse.url);
+                    throw new Error(`Erro ao salvar prova: servidor retornou HTML em vez de JSON (Status: ${provaResponse.status}). Verifique o console para mais detalhes.`);
+                }
                 
                 const provaResult = await provaResponse.json();
                 
-                if (provaResult.success) {
+                if (provaResult && provaResult.success) {
                     alert('✅ Prova completa salva com sucesso!\n\n📋 Template de cabeçalho salvo\n❓ Questões criadas\n📝 Prova completa criada\n\nAgora você pode acessar em "Provas" para visualizar e gerar para alunos.');
                     window.location.href = '/provas';
                 } else {
-                    alert('Erro ao criar prova: ' + provaResult.message);
+                    alert('Erro ao criar prova: ' + (provaResult?.message || 'Erro desconhecido'));
                 }
                 
             } catch (error) {

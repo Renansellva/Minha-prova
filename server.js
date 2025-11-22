@@ -44,6 +44,19 @@ const requireAuth = (req, res, next) => {
   }
 };
 
+// Middleware de autenticação para APIs (sempre retorna JSON)
+const requireAuthAPI = (req, res, next) => {
+  if (req.session.professorId) {
+    next();
+  } else {
+    res.status(401).json({ 
+      success: false, 
+      message: 'Não autenticado. Faça login novamente.',
+      redirect: '/login'
+    });
+  }
+};
+
 // Configuração do Multer para upload de arquivos
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -521,7 +534,7 @@ const logoUpload = multer({
   }
 });
 
-app.post('/api/provas', requireAuth, provaImageUpload.single('imagem'), async (req, res) => {
+app.post('/api/provas', requireAuthAPI, provaImageUpload.single('imagem'), async (req, res) => {
   try {
     const { titulo, disciplina, descricao, tempoLimite, turma_nome, textoPersonalizado, questoesIds } = req.body;
     const professorId = req.session.professorId;
@@ -573,7 +586,12 @@ app.post('/api/provas', requireAuth, provaImageUpload.single('imagem'), async (r
     res.json({ success: true, message: 'Prova criada com sucesso!', provaId });
   } catch (error) {
     console.error('Erro ao criar prova:', error);
-    res.json({ success: false, message: 'Erro ao criar prova' });
+    // Sempre retornar JSON, mesmo em caso de erro
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Erro ao criar prova',
+      error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
@@ -610,7 +628,7 @@ app.get('/questoes/nova', requireAuth, (req, res) => {
 });
 
 // Criar nova questão
-app.post('/api/questoes', requireAuth, async (req, res) => {
+app.post('/api/questoes', requireAuthAPI, async (req, res) => {
   try {
     const { enunciado, opcoes, respostaCorreta, area, nivelDificuldade, tipo_questao } = req.body;
     const professorId = req.session.professorId;
