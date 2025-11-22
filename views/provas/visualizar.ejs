@@ -365,6 +365,8 @@
                 <a href="/provas" class="btn btn-secondary">← Voltar às Provas</a>
                 <button class="btn btn-primary" onclick="imprimirProva()">🖨️ Imprimir Prova</button>
                 <button class="btn btn-success" onclick="imprimirProvaComGabarito()">📋 Imprimir com Gabarito</button>
+                <a href="/qr-gabarito/<%= prova.id %>" class="btn btn-warning" target="_blank" style="background: #ffc107; color: #000;">📱 Ver Gabarito via QR</a>
+                <button class="btn btn-info" onclick="testarQR()" style="background: #17a2b8; color: white;">🧪 Testar QR Code</button>
             </div>
         </div>
 
@@ -388,14 +390,14 @@
                             <div class="campo-custom" style="background: #f8f9fa; padding: 12px 15px; border-radius: 8px; border: 1px solid #e1e5e9; display: flex; justify-content: space-between; align-items: center;">
                                 <span class="campo-label-custom" style="font-weight: 600; color: #333;"><%= label %>:</span>
                                 <span class="campo-value-custom" style="color: #666; font-weight: 500;">
-                                    <% if (label.includes('Aluno') || label.includes('Estudante')) { %>
+                                <% if (label.includes('Aluno') || label.includes('Estudante')) { %>
                                         _______________
                                     <% } else if (label.includes('Professor') || label.includes('Docente')) { %>
                                         <%= professor.nome %>
                                     <% } else if (label.includes('Série') || label.includes('Ano') || label.includes('Turma')) { %>
                                         <%= prova.turma_nome %>
-                                    <% } else if (label.includes('Data')) { %>
-                                        <%= new Date().toLocaleDateString('pt-BR') %>
+                                <% } else if (label.includes('Data')) { %>
+                                        _______________
                                     <% } else if (label.includes('Disciplina') || label.includes('Matéria')) { %>
                                         <%= prova.disciplina %>
                                     <% } else if (label.includes('Nota') || label.includes('Pontuação')) { %>
@@ -436,7 +438,7 @@
                         </div>
                         <div class="info-item">
                             <div class="info-label">📅 Data</div>
-                            <div class="info-value"><%= new Date().toLocaleDateString('pt-BR') %></div>
+                            <div class="info-value">________________________</div>
                         </div>
                     </div>
                     <% if (prova.descricao) { %>
@@ -467,7 +469,10 @@
                     </div>
                 </div>
                 <p style="margin: 10px 0 0 0; color: #666; font-size: 0.9em;">
-                    Este código contém todas as questões da prova
+                    📱 Escaneie este QR code para acessar o gabarito completo da prova
+                </p>
+                <p style="margin: 5px 0 0 0; color: #999; font-size: 0.8em;">
+                    ✨ Ideal para correção rápida das provas dos alunos
                 </p>
             </div>
 
@@ -542,28 +547,36 @@
         </div>
     </div>
 
+    <script id="questoes-data" type="application/json"><%- JSON.stringify(questoes) %></script>
     <script>
-        // Gerar QR code único para toda a prova
+        // Gerar QR code único para toda a prova (inclui gabarito)
         document.addEventListener('DOMContentLoaded', async function() {
             try {
+                // Coletar questões com segurança via script JSON embutido
+                const questoesData = JSON.parse(document.getElementById('questoes-data').textContent);
+                const questoesArr = questoesData.map((q, index) => ({
+                    id: q.id,
+                    numero: index + 1,
+                    enunciado: q.enunciado,
+                    corretaIndex: (typeof q.resposta_correta === 'number' ? q.resposta_correta : null)
+                }));
+
                 // Criar dados únicos da prova
                 const dadosProva = {
                     titulo: '<%= prova.titulo %>',
                     disciplina: '<%= prova.disciplina %>',
                     turma: '<%= prova.turma_nome %>',
-                    questoes: [
-                        <% questoes.forEach((questao, index) => { %>
-                        {
-                            id: <%= questao.id %>,
-                            numero: <%= index + 1 %>,
-                            enunciado: '<%= questao.enunciado.replace(/'/g, "\\'") %>'
-                        }<%= index < questoes.length - 1 ? ',' : '' %>
-                        <% }); %>
-                    ],
-                    totalQuestoes: <%= questoes.length %>,
+                    questoes: questoesArr,
+                    totalQuestoes: questoesArr.length,
                     professor: '<%= professor.nome %>',
                     data: new Date().toISOString()
                 };
+                
+                // Criar URL simples do gabarito
+                const urlGabarito = `${window.location.origin}/qr-gabarito/<%= prova.id %>`;
+                
+                console.log('URL Gabarito:', urlGabarito);
+                console.log('ID da Prova:', '<%= prova.id %>');
                 
                 const response = await fetch('/api/gerar-qr', {
                     method: 'POST',
@@ -571,18 +584,27 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        data: `PROVA: ${dadosProva.titulo} | ${dadosProva.disciplina} | ${dadosProva.turma} | ${dadosProva.totalQuestoes} questões | Prof: ${dadosProva.professor}`
+                        data: urlGabarito
                     })
                 });
                 
+                console.log('Response status:', response.status);
                 const result = await response.json();
+                console.log('Result:', result);
                 
                 if (result.success) {
                     document.getElementById('qr-prova').innerHTML = 
-                        `<img src="${result.qrCode}" alt="QR Code da Prova" style="max-width: 150px; max-height: 150px; border-radius: 8px;">`;
+                        `<img src="${result.qrCode}" alt="QR Code da Prova" style="max-width: 220px; max-height: 220px; border-radius: 8px;">`;
+                    console.log('QR Code gerado com sucesso');
+                } else {
+                    console.error('Erro na resposta:', result.message);
+                    document.getElementById('qr-prova').innerHTML = 
+                        `<div style="color: red; text-align: center;">Erro ao gerar QR Code</div>`;
                 }
             } catch (error) {
                 console.error('Erro ao gerar QR code da prova:', error);
+                document.getElementById('qr-prova').innerHTML = 
+                    `<div style="color: red; text-align: center;">Erro: ${error.message}</div>`;
             }
         });
 
@@ -602,76 +624,101 @@
             alert('Funcionalidade de exportação será implementada em breve!');
         }
 
-        function imprimirProva() {
-            // Esconder elementos que não devem aparecer na impressão
-            document.querySelector('.actions-section').style.display = 'none';
-            document.querySelector('.page-header').style.display = 'none';
-            document.querySelector('.header').style.display = 'none';
+        function testarQR() {
+            const urlTeste = `${window.location.origin}/teste-qr/<%= prova.id %>`;
+            const urlGabarito = `${window.location.origin}/qr-gabarito/<%= prova.id %>`;
             
-            // Esconder respostas corretas
-            document.querySelectorAll('.opcao.correta').forEach(opcao => {
-                opcao.style.background = 'white';
-                opcao.style.borderColor = '#e1e5e9';
-                opcao.style.fontWeight = 'normal';
-            });
+            console.log('URL de teste:', urlTeste);
+            console.log('URL do gabarito:', urlGabarito);
             
-            // Remover marcações de resposta correta
-            document.querySelectorAll('.opcao').forEach(opcao => {
-                const texto = opcao.innerHTML;
-                opcao.innerHTML = texto.replace(' ✓', '');
-            });
+            alert(`🧪 TESTE DO QR CODE\n\nURL de teste: ${urlTeste}\nURL do gabarito: ${urlGabarito}\n\nTestando primeiro a página de teste...`);
             
-            // Destacar o QR code da prova
-            const qrContainer = document.querySelector('#qr-prova').parentElement;
-            qrContainer.style.border = '3px solid #007bff';
-            qrContainer.style.background = '#f8f9fa';
+            // Abrir página de teste primeiro
+            window.open(urlTeste, '_blank');
             
-            // Imprimir
-            window.print();
-            
-            // Restaurar elementos após impressão
+            // Depois de 2 segundos, abrir o gabarito
             setTimeout(() => {
-                document.querySelector('.actions-section').style.display = 'block';
-                document.querySelector('.page-header').style.display = 'flex';
-                document.querySelector('.header').style.display = 'block';
-                
-                // Restaurar respostas corretas
+                window.open(urlGabarito, '_blank');
+            }, 2000);
+        }
+
+        function imprimirProva() {
+            try {
+                const actions = document.querySelector('.actions-section');
+                const pageHeader = document.querySelector('.page-header');
+                const siteHeader = document.querySelector('.header');
+                if (actions) actions.style.display = 'none';
+                if (pageHeader) pageHeader.style.display = 'none';
+                if (siteHeader) siteHeader.style.display = 'none';
+
+                // Esconder estilização da correta para prova (sem gabarito)
                 document.querySelectorAll('.opcao.correta').forEach(opcao => {
-                    opcao.style.background = '#d4edda';
-                    opcao.style.borderColor = '#c3e6cb';
-                    opcao.style.fontWeight = '600';
+                    opcao.style.background = 'white';
+                    opcao.style.borderColor = '#e1e5e9';
+                    opcao.style.fontWeight = 'normal';
                 });
-                
-                // Restaurar marcações
                 document.querySelectorAll('.opcao').forEach(opcao => {
-                    if (opcao.classList.contains('correta')) {
-                        const texto = opcao.innerHTML;
-                        if (!texto.includes('✓')) {
-                            opcao.innerHTML = texto + ' ✓';
-                        }
-                    }
+                    const texto = opcao.innerHTML;
+                    opcao.innerHTML = texto.replace(' ✓', '');
                 });
-                
-                // Restaurar estilo do QR code
-                qrContainer.style.border = '2px solid #e1e5e9';
-                qrContainer.style.background = '#f8f9fa';
-            }, 1000);
+
+                const qrEl = document.getElementById('qr-prova');
+                const qrContainer = qrEl ? qrEl.parentElement : null;
+                if (qrContainer) {
+                    qrContainer.style.border = '3px solid #007bff';
+                    qrContainer.style.background = '#f8f9fa';
+                }
+
+                window.print();
+
+                // Restaurar após impressão
+                setTimeout(() => {
+                    if (actions) actions.style.display = 'block';
+                    if (pageHeader) pageHeader.style.display = 'flex';
+                    if (siteHeader) siteHeader.style.display = 'block';
+
+                    document.querySelectorAll('.opcao.correta').forEach(opcao => {
+                        opcao.style.background = '#d4edda';
+                        opcao.style.borderColor = '#c3e6cb';
+                        opcao.style.fontWeight = '600';
+                    });
+                    document.querySelectorAll('.opcao').forEach(opcao => {
+                        if (opcao.classList.contains('correta')) {
+                            const texto = opcao.innerHTML;
+                            if (!texto.includes('✓')) {
+                                opcao.innerHTML = texto + ' ✓';
+                            }
+                        }
+                    });
+                    if (qrContainer) {
+                        qrContainer.style.border = '2px solid #e1e5e9';
+                        qrContainer.style.background = '#f8f9fa';
+                    }
+                }, 500);
+            } catch (e) {
+                console.error('Falha ao preparar impressão:', e);
+                window.print();
+            }
         }
 
         function imprimirProvaComGabarito() {
-            // Esconder elementos que não devem aparecer na impressão
-            document.querySelector('.actions-section').style.display = 'none';
-            document.querySelector('.page-header').style.display = 'none';
-            document.querySelector('.header').style.display = 'none';
-            
-            // Destacar o QR code da prova
-            const qrContainer = document.querySelector('#qr-prova').parentElement;
-            qrContainer.style.border = '3px solid #ffc107';
-            qrContainer.style.background = '#fff3cd';
-            
-            // Adicionar cabeçalho de gabarito
-            const gabaritoHeader = document.createElement('div');
-            gabaritoHeader.innerHTML = `
+            try {
+                const actions = document.querySelector('.actions-section');
+                const pageHeader = document.querySelector('.page-header');
+                const siteHeader = document.querySelector('.header');
+                if (actions) actions.style.display = 'none';
+                if (pageHeader) pageHeader.style.display = 'none';
+                if (siteHeader) siteHeader.style.display = 'none';
+
+                const qrEl = document.getElementById('qr-prova');
+                const qrContainer = qrEl ? qrEl.parentElement : null;
+                if (qrContainer) {
+                    qrContainer.style.border = '3px solid #ffc107';
+                    qrContainer.style.background = '#fff3cd';
+                }
+
+                const gabaritoHeader = document.createElement('div');
+                gabaritoHeader.innerHTML = `
                 <div style="background: #fff3cd; border: 2px solid #ffeaa7; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
                     <h3 style="margin: 0; color: #856404;">📋 GABARITO - <%= prova.titulo %></h3>
                     <p style="margin: 5px 0 0 0; color: #856404; font-weight: 600;">
@@ -679,26 +726,26 @@
                     </p>
                 </div>
             `;
-            document.querySelector('.prova-container').insertBefore(gabaritoHeader, document.querySelector('.prova-header'));
-            
-            // Imprimir
-            window.print();
-            
-            // Restaurar elementos após impressão
-            setTimeout(() => {
-                document.querySelector('.actions-section').style.display = 'block';
-                document.querySelector('.page-header').style.display = 'flex';
-                document.querySelector('.header').style.display = 'block';
-                
-                // Remover cabeçalho de gabarito
-                if (gabaritoHeader.parentNode) {
-                    gabaritoHeader.parentNode.removeChild(gabaritoHeader);
-                }
-                
-                // Restaurar estilo do QR code
-                qrContainer.style.border = '2px solid #e1e5e9';
-                qrContainer.style.background = '#f8f9fa';
-            }, 1000);
+                const provaContainer = document.querySelector('.prova-container');
+                const headerRef = document.querySelector('.prova-header') || provaContainer.firstChild;
+                if (provaContainer) provaContainer.insertBefore(gabaritoHeader, headerRef);
+
+                window.print();
+
+                setTimeout(() => {
+                    if (actions) actions.style.display = 'block';
+                    if (pageHeader) pageHeader.style.display = 'flex';
+                    if (siteHeader) siteHeader.style.display = 'block';
+                    if (gabaritoHeader.parentNode) gabaritoHeader.parentNode.removeChild(gabaritoHeader);
+                    if (qrContainer) {
+                        qrContainer.style.border = '2px solid #e1e5e9';
+                        qrContainer.style.background = '#f8f9fa';
+                    }
+                }, 500);
+            } catch (e) {
+                console.error('Falha ao imprimir com gabarito:', e);
+                window.print();
+            }
         }
 
         // Estilo para impressão

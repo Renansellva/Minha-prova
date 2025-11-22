@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste QR Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste do QR Code</h1>
+        
+        <% if (prova) { %>
+            <div class="success">
+                <h3>✅ Prova encontrada!</h3>
+                <p><strong>Título:</strong> <%= prova.titulo %></p>
+                <p><strong>ID:</strong> <%= prova.id %></p>
+                <p><strong>Disciplina:</strong> <%= prova.disciplina %></p>
+                <p><strong>Turma:</strong> <%= prova.turma_nome %></p>
+            </div>
+            
+            <% if (questoes && questoes.length > 0) { %>
+                <div class="success">
+                    <h3>✅ Questões encontradas!</h3>
+                    <p><strong>Total de questões:</strong> <%= questoes.length %></p>
+                </div>
+                
+                <div class="info">
+                    <h3>📋 Gabarito:</h3>
+                    <% questoes.forEach((questao, index) => { %>
+                        <p>
+                            <strong>Questão <%= index + 1 %>:</strong>
+                            <% if (questao.tipo_questao === 'multipla_escolha') { %>
+                                <% const letras = ['A', 'B', 'C', 'D', 'E', 'F']; %>
+                                Resposta: <%= letras[questao.resposta_correta] %>
+                            <% } else { %>
+                                Questão aberta
+                            <% } %>
+                        </p>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="error">
+                    <h3>❌ Nenhuma questão encontrada!</h3>
+                    <p>A prova existe, mas não possui questões associadas.</p>
+                </div>
+            <% } %>
+            
+        <% } else { %>
+            <div class="error">
+                <h3>❌ Prova não encontrada!</h3>
+                <p>Não foi possível encontrar uma prova com o ID fornecido.</p>
+            </div>
+        <% } %>
+        
+        <div style="margin-top: 30px;">
+            <a href="javascript:history.back()" style="background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">← Voltar</a>
+        </div>
+    </div>
+</body>
+</html>
+

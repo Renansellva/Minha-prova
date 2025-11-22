@@ -664,12 +664,47 @@
                     <div class="questoes-container">
                         <div class="questoes-header">
                             <h4>📝 Adicionar Questões</h4>
-                            <small style="color: #666;">Adicione as questões que aparecerão na prova</small>
+                            <small style="color: #666;">Selecione questões do banco de dados ou crie novas</small>
+                        </div>
+                        
+                        <!-- Seção de busca e seleção do banco -->
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #e1e5e9;">
+                            <h5 style="margin: 0 0 15px 0; color: #333;">📚 Selecionar Questões do Banco</h5>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 15px;">
+                                <input type="text" id="buscar-questao" placeholder="🔍 Buscar por enunciado ou área..." style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                <select id="filtro-area" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                    <option value="">Todas as áreas</option>
+                                    <% if (typeof areas !== 'undefined' && areas.length > 0) { %>
+                                        <% areas.forEach(area => { %>
+                                            <option value="<%= area %>"><%= area %></option>
+                                        <% }); %>
+                                    <% } %>
+                                </select>
+                                <button type="button" onclick="buscarQuestoes()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">🔍 Buscar</button>
+                            </div>
+                            <div id="questoes-banco-container" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 10px; background: white;">
+                                <p style="color: #666; text-align: center; margin: 20px 0;">Clique em "Buscar" para ver as questões disponíveis</p>
+                            </div>
+                            <div style="margin-top: 15px; padding: 10px; background: #e7f3ff; border-radius: 5px; border-left: 4px solid #667eea;">
+                                <strong>💡 Dica:</strong> Marque as questões que deseja adicionar à prova e depois clique em "Adicionar Selecionadas"
+                            </div>
+                            <button type="button" onclick="adicionarQuestoesSelecionadas()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%;">✅ Adicionar Questões Selecionadas</button>
+                        </div>
+                        
+                        <!-- Divisor -->
+                        <div style="text-align: center; margin: 20px 0; position: relative;">
+                            <hr style="border: none; border-top: 2px dashed #ddd; margin: 0;">
+                            <span style="background: white; padding: 0 15px; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); color: #666;">OU</span>
+                        </div>
+                        
+                        <!-- Questões adicionadas à prova -->
+                        <div style="margin-bottom: 15px;">
+                            <h5 style="margin: 0 0 10px 0; color: #333;">📋 Questões Adicionadas à Prova: <span id="contador-questoes">0</span></h5>
                         </div>
                         <div id="questoes-container">
                             <!-- Questões serão adicionadas aqui -->
                         </div>
-                        <button type="button" class="btn-add-questao" onclick="adicionarQuestao()">➕ Adicionar Questão</button>
+                        <button type="button" class="btn-add-questao" onclick="adicionarQuestao()">➕ Criar Nova Questão Manualmente</button>
                     </div>
                 </div>
 
@@ -856,7 +891,201 @@
             }
         });
 
-        // ==================== FUNÇÕES PARA QUESTÕES ====================
+        // ==================== FUNÇÕES PARA QUESTÕES DO BANCO ====================
+        const questoesDisponiveis = <%- JSON.stringify(questoes || []) %>;
+        let questoesSelecionadas = [];
+
+        function buscarQuestoes() {
+            const busca = document.getElementById('buscar-questao').value.toLowerCase();
+            const areaFiltro = document.getElementById('filtro-area').value;
+            const container = document.getElementById('questoes-banco-container');
+            
+            let questoesFiltradas = questoesDisponiveis;
+            
+            // Filtrar por busca
+            if (busca) {
+                questoesFiltradas = questoesFiltradas.filter(q => 
+                    q.enunciado.toLowerCase().includes(busca) || 
+                    q.area.toLowerCase().includes(busca)
+                );
+            }
+            
+            // Filtrar por área
+            if (areaFiltro) {
+                questoesFiltradas = questoesFiltradas.filter(q => q.area === areaFiltro);
+            }
+            
+            if (questoesFiltradas.length === 0) {
+                container.innerHTML = '<p style="color: #666; text-align: center; margin: 20px 0;">Nenhuma questão encontrada</p>';
+                return;
+            }
+            
+            container.innerHTML = questoesFiltradas.map(q => {
+                const opcoes = JSON.parse(q.opcoes || '[]');
+                const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+                const respostaCorreta = letras[q.resposta_correta] || '-';
+                const tipoQuestao = q.tipo_questao === 'questao_aberta' ? 'Aberta' : 'Múltipla Escolha';
+                
+                return `
+                    <div class="questao-banco-item" style="background: white; border: 2px solid #e1e5e9; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" 
+                         onclick="toggleQuestao(${q.id})"
+                         id="questao-banco-${q.id}">
+                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 10px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                    <span style="background: #667eea; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">${q.area}</span>
+                                    <span style="background: #28a745; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.85em;">${tipoQuestao}</span>
+                                </div>
+                                <p style="margin: 0 0 8px 0; color: #333; font-weight: 600; line-height: 1.4;">${q.enunciado.substring(0, 150)}${q.enunciado.length > 150 ? '...' : ''}</p>
+                                ${tipoQuestao === 'Múltipla Escolha' ? `
+                                    <p style="margin: 0; color: #666; font-size: 0.9em;">
+                                        <strong>Resposta correta:</strong> ${respostaCorreta}
+                                    </p>
+                                ` : ''}
+                            </div>
+                            <input type="checkbox" id="check-${q.id}" onclick="event.stopPropagation(); toggleQuestao(${q.id})" 
+                                   style="width: 20px; height: 20px; cursor: pointer;">
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleQuestao(questaoId) {
+            const checkbox = document.getElementById(`check-${questaoId}`);
+            const questaoItem = document.getElementById(`questao-banco-${questaoId}`);
+            const questao = questoesDisponiveis.find(q => q.id === questaoId);
+            
+            if (!questao) return;
+            
+            if (checkbox.checked) {
+                // Adicionar à seleção
+                if (!questoesSelecionadas.find(q => q.id === questaoId)) {
+                    questoesSelecionadas.push(questao);
+                    questaoItem.style.borderColor = '#28a745';
+                    questaoItem.style.background = '#f0f9f0';
+                }
+            } else {
+                // Remover da seleção
+                questoesSelecionadas = questoesSelecionadas.filter(q => q.id !== questaoId);
+                questaoItem.style.borderColor = '#e1e5e9';
+                questaoItem.style.background = 'white';
+            }
+            
+            atualizarContador();
+        }
+
+        function adicionarQuestoesSelecionadas() {
+            if (questoesSelecionadas.length === 0) {
+                alert('Selecione pelo menos uma questão do banco!');
+                return;
+            }
+            
+            questoesSelecionadas.forEach(questao => {
+                adicionarQuestaoDoBanco(questao);
+            });
+            
+            // Limpar seleção
+            questoesSelecionadas.forEach(q => {
+                const checkbox = document.getElementById(`check-${q.id}`);
+                if (checkbox) checkbox.checked = false;
+                const questaoItem = document.getElementById(`questao-banco-${q.id}`);
+                if (questaoItem) {
+                    questaoItem.style.borderColor = '#e1e5e9';
+                    questaoItem.style.background = 'white';
+                }
+            });
+            
+            const quantidade = questoesSelecionadas.length;
+            questoesSelecionadas = [];
+            atualizarContador();
+            alert(`✅ ${quantidade} questão(ões) adicionada(s) à prova!`);
+        }
+
+        function adicionarQuestaoDoBanco(questao) {
+            questaoCount++;
+            const container = document.getElementById('questoes-container');
+            const opcoes = JSON.parse(questao.opcoes || '[]');
+            const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+            const respostaCorreta = questao.resposta_correta;
+            const tipoQuestao = questao.tipo_questao === 'questao_aberta' ? 'questao_aberta' : 'multipla_escolha';
+            
+            const novaQuestao = document.createElement('div');
+            novaQuestao.className = 'questao-item';
+            novaQuestao.dataset.questaoId = questao.id;
+            
+            let opcoesHTML = '';
+            let selectCorretaHTML = '';
+            
+            if (tipoQuestao === 'questao_aberta') {
+                opcoesHTML = `
+                    <div class="questao-aberta">
+                        <textarea placeholder="Resposta de referência (opcional)..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; min-height: 60px;">${opcoes[0] || ''}</textarea>
+                    </div>
+                `;
+                selectCorretaHTML = '<option value="">Questão aberta</option>';
+            } else {
+                opcoesHTML = opcoes.map((opcao, index) => `
+                    <div class="opcao-item">
+                        <span class="opcao-letra">${letras[index]}</span>
+                        <input type="text" placeholder="Opção ${letras[index]}" value="${opcao}" required>
+                        <input type="radio" name="correta-questao-${questaoCount}" value="${letras[index]}" class="opcao-correta" ${index === respostaCorreta ? 'checked' : ''}>
+                        <button type="button" class="btn-remove-opcao" onclick="removerOpcao(this)">🗑️</button>
+                    </div>
+                `).join('');
+                selectCorretaHTML = opcoes.map((_, index) => 
+                    `<option value="${letras[index]}" ${index === respostaCorreta ? 'selected' : ''}>${letras[index]}</option>`
+                ).join('');
+            }
+            
+            novaQuestao.innerHTML = `
+                <div class="questao-header">
+                    <span class="questao-numero">Questão ${questaoCount} <small style="color: #28a745;">(do banco)</small></span>
+                    <button type="button" class="btn-remove-questao" onclick="removerQuestao(this)">🗑️</button>
+                </div>
+                <div class="questao-enunciado">
+                    <textarea placeholder="Digite o enunciado da questão..." required>${questao.enunciado}</textarea>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; margin-bottom: 5px; color: #666;">Área:</label>
+                    <input type="text" class="questao-area" placeholder="Ex: Matemática" value="${questao.area || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div class="opcoes-container">
+                    ${opcoesHTML}
+                    ${tipoQuestao !== 'questao_aberta' ? `
+                        <div class="resposta-correta">
+                            <label>✅ Alternativa correta:</label>
+                            <select class="select-correta" name="correta-select-${questaoCount}">
+                                <option value="">Selecione...</option>
+                                ${selectCorretaHTML}
+                            </select>
+                        </div>
+                        <button type="button" class="btn-add-opcao" onclick="adicionarOpcao(this)">➕ Adicionar Opção</button>
+                    ` : ''}
+                </div>
+            `;
+            container.appendChild(novaQuestao);
+            atualizarContador();
+        }
+
+        function atualizarContador() {
+            const questoesAdicionadas = document.querySelectorAll('#questoes-container .questao-item').length;
+            document.getElementById('contador-questoes').textContent = questoesAdicionadas;
+        }
+
+        // Permitir buscar ao pressionar Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            const buscarInput = document.getElementById('buscar-questao');
+            if (buscarInput) {
+                buscarInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        buscarQuestoes();
+                    }
+                });
+            }
+        });
+
+        // ==================== FUNÇÕES PARA QUESTÕES MANUAIS ====================
         let questaoCount = 0;
 
         function adicionarQuestao() {
@@ -1016,27 +1245,53 @@
             
             // Coletar questões
             const questoes = [];
-            document.querySelectorAll('.questao-item').forEach((questaoItem, index) => {
-                const enunciado = questaoItem.querySelector('textarea').value;
+            document.querySelectorAll('#questoes-container .questao-item').forEach((questaoItem, index) => {
+                const enunciado = questaoItem.querySelector('textarea').value.trim();
+                if (!enunciado) return;
+                
                 const opcoes = [];
+                let alternativaCorreta = '';
+                let tipoQuestao = 'multipla_escolha';
                 
-                questaoItem.querySelectorAll('.opcao-item').forEach(opcaoItem => {
-                    const texto = opcaoItem.querySelector('input').value;
-                    if (texto) {
-                        opcoes.push(texto);
+                // Verificar se é questão aberta
+                const questaoAberta = questaoItem.querySelector('.questao-aberta');
+                if (questaoAberta) {
+                    tipoQuestao = 'questao_aberta';
+                    const respostaRef = questaoAberta.querySelector('textarea').value.trim();
+                    opcoes.push(respostaRef || 'Resposta aberta');
+                } else {
+                    // Questão de múltipla escolha
+                    questaoItem.querySelectorAll('.opcao-item').forEach(opcaoItem => {
+                        const texto = opcaoItem.querySelector('input').value.trim();
+                        if (texto) {
+                            opcoes.push(texto);
+                        }
+                    });
+                    
+                    // Obter alternativa correta
+                    const selectCorreta = questaoItem.querySelector('.select-correta');
+                    alternativaCorreta = selectCorreta ? selectCorreta.value : '';
+                }
+                
+                // Validar questão de múltipla escolha
+                if (tipoQuestao === 'multipla_escolha') {
+                    if (opcoes.length >= 2 && alternativaCorreta) {
+                        questoes.push({
+                            numero: index + 1,
+                            enunciado: enunciado,
+                            opcoes: opcoes,
+                            respostaCorreta: alternativaCorreta,
+                            tipoQuestao: tipoQuestao
+                        });
                     }
-                });
-                
-                // Obter alternativa correta
-                const selectCorreta = questaoItem.querySelector('.select-correta');
-                const alternativaCorreta = selectCorreta ? selectCorreta.value : '';
-                
-                if (enunciado && opcoes.length >= 2 && alternativaCorreta) {
+                } else {
+                    // Questão aberta
                     questoes.push({
                         numero: index + 1,
                         enunciado: enunciado,
                         opcoes: opcoes,
-                        respostaCorreta: alternativaCorreta
+                        respostaCorreta: 0,
+                        tipoQuestao: tipoQuestao
                     });
                 }
             });
@@ -1052,10 +1307,11 @@
                 return;
             }
             
-            // Verificar se todas as questões têm alternativa correta
-            const questoesSemResposta = questoes.filter(q => !q.respostaCorreta);
+            // Verificar se todas as questões de múltipla escolha têm alternativa correta
+            const questoesMultiplaEscolha = questoes.filter(q => q.tipoQuestao === 'multipla_escolha');
+            const questoesSemResposta = questoesMultiplaEscolha.filter(q => !q.respostaCorreta);
             if (questoesSemResposta.length > 0) {
-                alert('Por favor, selecione a alternativa correta para todas as questões!');
+                alert('Por favor, selecione a alternativa correta para todas as questões de múltipla escolha!');
                 return;
             }
             

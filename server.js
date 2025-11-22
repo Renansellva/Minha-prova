@@ -692,10 +692,27 @@ app.get('/templates-cabecalho', requireAuth, async (req, res) => {
 });
 
 // Novo template de cabeçalho
-app.get('/templates-cabecalho/novo', requireAuth, (req, res) => {
-  res.render('templates-cabecalho/novo', {
-    professor: { nome: req.session.professorNome }
-  });
+app.get('/templates-cabecalho/novo', requireAuth, async (req, res) => {
+  try {
+    const professorId = req.session.professorId;
+    // Buscar questões do banco para seleção
+    const questoes = await db.getQuestoes(professorId);
+    // Obter áreas únicas para filtro
+    const areas = [...new Set(questoes.map(q => q.area))];
+    
+    res.render('templates-cabecalho/novo', {
+      professor: { nome: req.session.professorNome },
+      questoes,
+      areas
+    });
+  } catch (error) {
+    console.error('Erro ao carregar página de criação:', error);
+    res.render('templates-cabecalho/novo', {
+      professor: { nome: req.session.professorNome },
+      questoes: [],
+      areas: []
+    });
+  }
 });
 
 // Criar novo template de cabeçalho
@@ -1143,6 +1160,82 @@ app.post('/api/gerar-qr', async (req, res) => {
       success: false,
       message: 'Erro ao gerar QR Code'
     });
+  }
+});
+
+// Rota de teste para QR code
+app.get('/teste-qr/:provaId', async (req, res) => {
+  try {
+    const provaId = req.params.provaId;
+    
+    // Buscar prova pública
+    let prova = null;
+    if (process.env.VERCEL) {
+      prova = db.data.provas.find(p => p.id === parseInt(provaId));
+    } else {
+      prova = await new Promise((resolve, reject) => {
+        db.db.get(
+          `SELECT * FROM provas WHERE id = ?`,
+          [parseInt(provaId)],
+          (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+          }
+        );
+      });
+    }
+    
+    const questoes = prova ? await db.getQuestoesProva(provaId) : [];
+    
+    res.render('provas/teste-qr', {
+      prova,
+      questoes
+    });
+  } catch (error) {
+    console.error('Erro no teste QR:', error);
+    res.status(500).send('Erro interno do servidor');
+  }
+});
+
+// Rota para visualizar gabarito via QR code (pública)
+app.get('/qr-gabarito/:provaId', async (req, res) => {
+  try {
+    const provaId = req.params.provaId;
+    
+    // Buscar prova pública (buscar sem verificar professor)
+    let prova = null;
+    if (process.env.VERCEL) {
+      // Para banco em memória, buscar qualquer prova com esse ID
+      prova = db.data.provas.find(p => p.id === parseInt(provaId));
+    } else {
+      // Para SQLite, fazer query direta
+      prova = await new Promise((resolve, reject) => {
+        db.db.get(
+          `SELECT * FROM provas WHERE id = ?`,
+          [parseInt(provaId)],
+          (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+          }
+        );
+      });
+    }
+    
+    if (!prova) {
+      return res.status(404).send('Prova não encontrada');
+    }
+    
+    // Buscar questões da prova
+    const questoes = await db.getQuestoesProva(provaId);
+    console.log(`QR Code Gabarito - Prova ${provaId}: ${questoes.length} questões encontradas`);
+    
+    res.render('provas/qr-gabarito', {
+      prova,
+      questoes
+    });
+  } catch (error) {
+    console.error('Erro ao carregar gabarito via QR:', error);
+    res.status(500).send('Erro interno do servidor');
   }
 });
 
