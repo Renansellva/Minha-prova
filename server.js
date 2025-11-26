@@ -1,3 +1,4 @@
+
 const express = require('express');
 const path = require('path');
 const QRCode = require('qrcode');
@@ -12,8 +13,24 @@ const Database = require('./database');
 const MemoryDatabase = require('./database-memory');
 const moment = require('moment');
 
+// Firebase (só inicializa se tiver configurado)
+let dbFirebase, authFirebase;
+try {
+  const firebase = require('./firebase');
+  dbFirebase = firebase.dbFirebase;
+  authFirebase = firebase.authFirebase;
+  console.log('✅ Firebase inicializado com sucesso!');
+} catch (error) {
+  console.warn('⚠️ Firebase não configurado:', error.message);
+  dbFirebase = null;
+  authFirebase = null;
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Detectar se está em ambiente de produção (Vercel)
+const IS_PROD = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
 
 // Usar banco em memória na Vercel, SQLite localmente
 const db = process.env.VERCEL ? new MemoryDatabase() : new Database();
@@ -35,26 +52,78 @@ app.use(session({
   cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 horas
 }));
 
-// Middleware de autenticação
-const requireAuth = (req, res, next) => {
-  if (req.session.professorId) {
-    next();
-  } else {
-    res.redirect('/login');
+// Helper para checar se o professor tem plano liberado em produção
+// Neste primeiro momento usamos uma lista de e-mails em variável de ambiente (PAID_EMAILS)
+async function hasPlanoMensalAtivo(professorId) {
+  try {
+    const professor = await db.getProfessorById(professorId);
+    if (!professor) return false;
+
+    // Admin sempre tem acesso
+    if (professor.email === 'admin@escola.com') return true;
+
+    const raw = process.env.PAID_EMAILS || '';
+    const paidEmails = raw
+      .split(',')
+      .map(e => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (paidEmails.includes((professor.email || '').toLowerCase())) {
+      return true;
+    }
+
+    return false;
+  } catch (err) {
+    console.error('Erro ao verificar plano mensal:', err);
+    return false;
   }
+}
+
+// Middleware de autenticação (páginas)
+const requireAuth = async (req, res, next) => {
+  if (!req.session.professorId) {
+    return res.redirect('/login');
+  }
+
+  // Em desenvolvimento (localhost) não bloqueia pelo plano
+  if (!IS_PROD) {
+    return next();
+  }
+
+  const planoAtivo = await hasPlanoMensalAtivo(req.session.professorId);
+  if (!planoAtivo) {
+    return res.redirect('/plano-mensal');
+  }
+
+  next();
 };
 
 // Middleware de autenticação para APIs (sempre retorna JSON)
-const requireAuthAPI = (req, res, next) => {
-  if (req.session.professorId) {
-    next();
-  } else {
-    res.status(401).json({ 
+const requireAuthAPI = async (req, res, next) => {
+  if (!req.session.professorId) {
+    return res.status(401).json({ 
       success: false, 
       message: 'Não autenticado. Faça login novamente.',
       redirect: '/login'
     });
   }
+
+  // Em desenvolvimento (localhost) não bloqueia pelo plano
+  if (!IS_PROD) {
+    return next();
+  }
+
+  const planoAtivo = await hasPlanoMensalAtivo(req.session.professorId);
+  if (!planoAtivo) {
+    return res.status(402).json({
+      success: false,
+      message: 'Seu plano mensal não está ativo. Acesse o link de pagamento para continuar usando o sistema.',
+      pagamento: process.env.PLANO_PIX_LINK || 'https://pag.ae/81fwV3eHJ',
+      redirect: '/plano-mensal'
+    });
+  }
+
+  next();
 };
 
 // Configuração do Multer para upload de arquivos
@@ -141,6 +210,38 @@ app.get('/test', (req, res) => {
   });
 });
 
+// Rota de teste do Firebase
+app.get('/firebase-test', async (req, res) => {
+  try {
+    if (!dbFirebase) {
+      return res.status(503).json({ 
+        success: false, 
+        message: 'Firebase não configurado. Configure FIREBASE_SERVICE_ACCOUNT ou o arquivo FIREBASE_SERVICE_ACCOUNT' 
+      });
+    }
+    
+    const docRef = dbFirebase.collection('test').doc('ping');
+    await docRef.set({ 
+      ok: true, 
+      timestamp: new Date(),
+      message: 'Firebase conectado e escrevendo no Firestore!'
+    });
+    
+    res.json({ 
+      success: true, 
+      message: 'Firebase conectado e escrevendo no Firestore!',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('Erro Firebase:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+  }
+});
+
 app.get('/', (req, res) => {
   if (req.session.professorId) {
     res.redirect('/dashboard');
@@ -156,6 +257,53 @@ app.get('/login', (req, res) => {
   } else {
     res.render('login');
   }
+});
+
+// Página informando sobre o plano mensal e link Pix
+app.get('/plano-mensal', (req, res) => {
+  const pixLink = process.env.PLANO_PIX_LINK || 'https://pag.ae/81fwV3eHJ';
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Plano Mensal - Provas</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <style>
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#0f172a; color:#e5e7eb; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; padding:16px; }
+        .card { max-width:480px; width:100%; background:#020617; border-radius:16px; padding:24px 20px 20px; box-shadow:0 20px 45px rgba(15,23,42,0.7); border:1px solid rgba(148,163,184,0.25); }
+        h1 { font-size:1.5rem; margin:0 0 8px; color:#f9fafb; }
+        p { margin:0 0 10px; color:#cbd5f5; font-size:0.95rem; }
+        .price { font-size:1.4rem; font-weight:600; color:#22c55e; margin:8px 0 16px; }
+        .badge { display:inline-flex; align-items:center; gap:6px; font-size:0.75rem; padding:3px 9px; border-radius:999px; background:rgba(34,197,94,0.15); color:#bbf7d0; margin-bottom:10px; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 18px; border-radius:999px; background:linear-gradient(135deg,#22c55e,#16a34a); color:#022c22; font-weight:600; font-size:0.95rem; text-decoration:none; border:none; cursor:pointer; margin-top:4px; }
+        .btn span.icon { font-size:1rem; }
+        .info { font-size:0.8rem; color:#9ca3af; margin-top:10px; }
+        .steps { margin-top:12px; padding-left:18px; font-size:0.85rem; color:#cbd5e1; }
+        .steps li { margin-bottom:4px; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="badge">Acesso completo às ferramentas de provas</div>
+        <h1>Ative seu plano mensal</h1>
+        <p>Para usar o sistema online (Vercel) é necessário um plano mensal ativo.</p>
+        <div class="price">R$ 30,00 / mês</div>
+        <p>Pagamento via Pix pelo PagSeguro. Clique no botão abaixo para abrir a página segura de pagamento:</p>
+        <a class="btn" href="${pixLink}" target="_blank" rel="noopener noreferrer">
+          <span class="icon">⚡</span>
+          <span>Pagar plano mensal (Pix)</span>
+        </a>
+        <ul class="steps">
+          <li>1. Clique no botão e faça o pagamento via Pix.</li>
+          <li>2. Envie o comprovante para o suporte / contato informado por você.</li>
+          <li>3. Após confirmação, seu e-mail será liberado para uso do sistema.</li>
+        </ul>
+        <p class="info">Enquanto estiver em desenvolvimento (localhost), o sistema funciona normalmente sem plano. Em produção, somente e-mails liberados pelo administrador conseguem acessar o painel.</p>
+      </div>
+    </body>
+    </html>
+  `);
 });
 
 // Rota de registro

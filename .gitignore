@@ -89,6 +89,10 @@ jspm_packages/
 database.db
 *.db
 
+# Firebase Service Account (contém chaves privadas - NUNCA commitar!)
+FIREBASE_SERVICE_ACCOUNT
+firebase-service-account.json
+
 # Uploads
 uploads/
 
