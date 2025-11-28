@@ -9,8 +9,9 @@ if (!admin.apps.length) {
   let serviceAccount;
   
   // Tentar ler da variável de ambiente primeiro (Vercel/produção)
-  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  // Aceita ambos os nomes: FIREBASE_SERVICE_ACCOUNT ou CONTA_DE_SERVIÇO_FIREBASE
+  if (process.env.FIREBASE_SERVICE_ACCOUNT || process.env.CONTA_DE_SERVIÇO_FIREBASE) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || process.env.CONTA_DE_SERVIÇO_FIREBASE);
   } else {
     // Se não tiver, tentar ler do arquivo local (desenvolvimento)
     const serviceAccountPath = path.join(__dirname, 'FIREBASE_SERVICE_ACCOUNT');

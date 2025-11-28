@@ -11,19 +11,23 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const Database = require('./database');
 const MemoryDatabase = require('./database-memory');
+const FirebaseDatabase = require('./database-firebase');
 const moment = require('moment');
 
 // Firebase (só inicializa se tiver configurado)
 let dbFirebase, authFirebase;
+let firebaseAvailable = false;
 try {
   const firebase = require('./firebase');
   dbFirebase = firebase.dbFirebase;
   authFirebase = firebase.authFirebase;
+  firebaseAvailable = true;
   console.log('✅ Firebase inicializado com sucesso!');
 } catch (error) {
   console.warn('⚠️ Firebase não configurado:', error.message);
   dbFirebase = null;
   authFirebase = null;
+  firebaseAvailable = false;
 }
 
 const app = express();
@@ -32,8 +36,15 @@ const PORT = process.env.PORT || 3000;
 // Detectar se está em ambiente de produção (Vercel)
 const IS_PROD = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
 
-// Usar banco em memória na Vercel, SQLite localmente
-const db = process.env.VERCEL ? new MemoryDatabase() : new Database();
+// Usar Firebase se disponível, senão usar banco em memória na Vercel ou SQLite localmente
+let db;
+if (firebaseAvailable && dbFirebase) {
+  db = new FirebaseDatabase(dbFirebase);
+  console.log('🔥 Usando Firebase como banco de dados principal');
+} else {
+  db = process.env.VERCEL ? new MemoryDatabase() : new Database();
+  console.log('💾 Usando banco local (SQLite/Memory) como fallback');
+}
 
 // Configuração do EJS
 app.set('view engine', 'ejs');
