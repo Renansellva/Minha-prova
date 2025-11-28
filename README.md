@@ -172,6 +172,8 @@ Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes
 
 ---
 
-**Desenvolvido com ❤️ usando Node.js, Express e tecnologias web modernas.**
+**Desenvolvid usando Node.js, Express e tecnologias web modernas.**
+
+Desenvolvidor por Renansellva!
 
 

@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    console.log('🚀 Sistema de Provas carregado com sucesso!');
+    console.log('Sistema de Provas carregado com sucesso Renan!');
 });
 
 

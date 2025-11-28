@@ -287,19 +287,18 @@ app.get('/plano-mensal', (req, res) => {
       <div class="card">
         <div class="badge">Acesso completo às ferramentas de provas</div>
         <h1>Ative seu plano mensal</h1>
-        <p>Para usar o sistema online (Vercel) é necessário um plano mensal ativo.</p>
-        <div class="price">R$ 30,00 / mês</div>
-        <p>Pagamento via Pix pelo PagSeguro. Clique no botão abaixo para abrir a página segura de pagamento:</p>
+        <p>Desbloqueie todo o potencial do sistema de gerenciamento de provas com acesso ilimitado a todas as funcionalidades.</p>
+        <div class="price">R$ 5,90 / mês</div>
+        <p>Pagamento rápido e seguro via Pix pelo PagSeguro. Clique no botão abaixo para abrir a página segura de pagamento:</p>
         <a class="btn" href="${pixLink}" target="_blank" rel="noopener noreferrer">
           <span class="icon">⚡</span>
           <span>Pagar plano mensal (Pix)</span>
         </a>
         <ul class="steps">
-          <li>1. Clique no botão e faça o pagamento via Pix.</li>
-          <li>2. Envie o comprovante para o suporte / contato informado por você.</li>
-          <li>3. Após confirmação, seu e-mail será liberado para uso do sistema.</li>
+          <li>1. Clique no botão e faça o pagamento via Pix de forma rápida e segura.</li>
+    
+          <li>2. Após confirmação do pagamento, seu e-mail será liberado imediatamente para uso completo do sistema.</li>
         </ul>
-        <p class="info">Enquanto estiver em desenvolvimento (localhost), o sistema funciona normalmente sem plano. Em produção, somente e-mails liberados pelo administrador conseguem acessar o painel.</p>
       </div>
     </body>
     </html>
