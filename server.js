@@ -512,6 +512,10 @@ app.get('/perfil', requireAuth, async (req, res) => {
     // Questões recentes
     const questoesRecentes = questoes.slice(0, 5);
     
+    // Verificar status do plano
+    const planoAtivo = await hasPlanoMensalAtivo(professorId);
+    const pixLink = process.env.PLANO_PIX_LINK || 'https://pag.ae/81fwV3eHJ';
+    
     res.render('perfil', {
       professor: {
         id: professor.id,
@@ -527,7 +531,11 @@ app.get('/perfil', requireAuth, async (req, res) => {
         areasStats: areasStats
       },
       provasRecentes,
-      questoesRecentes
+      questoesRecentes,
+      plano: {
+        ativo: planoAtivo,
+        pixLink: pixLink
+      }
     });
   } catch (error) {
     console.error('Erro ao carregar perfil:', error);
